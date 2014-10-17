@@ -1,0 +1,29 @@
+There is a sample bot in src/com/barracuda/contest2014/ContestBot.java.
+
+You'll want to update the handleMessage() method, or create a subclass and
+override the handleMessage() method.
+
+Presumably you'll be using Eclipse or another IDE for java development, but if
+not, a build.xml file is provided, you can compile the source and create a
+runnable jar file by issuing the ant command in the current directory. Note
+that you'll probably want to remove the -nowarn compiler flag from build.xml
+for your own code.
+
+$ ant
+
+This will produce ContestBot.jar. You can then run the application from
+command line:
+
+$ java -jar ContestBot.jar [ <host> <port> ]
+
+To remove build remnants and the jarfile:
+
+$ ant clean
+
+
+To import into Eclipse:
+
+File | Import | General | Existing Projects into Workspace
+
+Specify the current directory (e.g., /vagrant/contest-clients/java)
+as the root directory.
