@@ -121,7 +121,7 @@ public class Strategy {
 							for (int oppy = 9 - oppz - oppx; oppy >= 0; oppy--) 
 								if (oppavailPoints[oppx][oppy][oppz] > 0) {
 								int oppo_oppz=getOppz(oppx,oppy,oppz,board,gt, Utils.getOpPlayerid(gt.game_state.player), gt.game_state.tokens+1);
-								if (oppo_oppz < oppz  && (!((gt.game_state.tokens+1) < (gt.game_state.opponent_tokens+1)) && (oppo_oppz<5))){									
+								if (oppo_oppz < oppz  && (!((gt.game_state.tokens+1) < (gt.game_state.opponent_tokens+1)) && (z<3))){									
 									System.out.println("can't wait! "+tmpmov[2]);
 									System.out.println("oppo: "+oppz+" oppo_oppz: "+oppo_oppz);
 									return new PlayerMoveMessage(gt.msgid, tmpmov);
