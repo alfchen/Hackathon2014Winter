@@ -91,6 +91,36 @@ public class Utils {
 		return v;
 	}
 	
+	/**
+	 * When we have multiple choices, choose the best one which minimize op's 
+	 */
+	static int[] bestMove(int[][][] board, int token, int playerId) {
+		int[] pos = new int[3]; // pos[0] = x, pos[1] = y, pos[2] = z;
+		// only look at bottom layer
+		int[] c = new int[] {2, 2};
+		int minDist = 0;
+		
+		for ( int z = token; z >= 0; --z ) {
+			for ( int x = 0; x + z < 10; ++x ) {
+				for ( int y = 0; x + y + z < 10; ++y ) {
+				
+					if ( canTake(x, y, z, board, playerId, new Integer(0)) ) {
+						int d = (x - c[0]) * (x - c[0]) + (y - c[1]) * (y - c[1]);
+						if ( minDist > d ) {
+							minDist = d;
+							pos[0] = x;
+							pos[1] = y;
+							pos[2] = z;
+						}
+					}
+				}
+			
+			}
+		}
+		
+		return pos;
+	}
+	
 	/** 
 	 * If player takes (x, y, z), how many points will be indirectly claimed? 
 	 */
