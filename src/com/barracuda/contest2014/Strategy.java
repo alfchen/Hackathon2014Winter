@@ -56,7 +56,8 @@ public class Strategy {
 				for (int y = 9 - z - x; y >= 0; y--) {
 					//System.out.println("-- points: " + points);
 					// Opponents
-					pointAdv = (double)((x+1) * (y+1)) / (double)((11-z)*(11-z)) * 4.0;
+					//pointAdv = (double)((x+1) * (y+1)) / (double)((11-z)*(11-z)) * 4.0;
+					pointAdv = 1.0;
 					points = Utils.numNewlyTaken(x, y, z, board, opID);
 					
 					if (points > 0) {
@@ -140,8 +141,8 @@ public class Strategy {
 			ourScore /= (double) LIST_TOP_NUM;
 		}
 		
-		if (ourTokens >= 3)
-			opNextMaxPoint *= 5;
+		//if (ourTokens >= 3)
+		//	opNextMaxPoint *= 5;
 			
 		opScore += opNextMaxPoint;
 		ourScore += ourNextMaxPoint;
