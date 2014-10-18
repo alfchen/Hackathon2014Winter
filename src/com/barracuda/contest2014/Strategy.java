@@ -31,7 +31,7 @@ public class Strategy {
 		
 		ourTokens += 1;
 		
-		for (int z = opTokens + OP_TOKEN_GAP_THRES; z > 0; z--) {
+		for (int z = 6; z > 0; z--) {
 			for (int x = 9 - z; x >= 0; x--) {
 				for (int y = 9 - z - x; y >= 0; y--) {
 					//System.out.println("-- points: " + points);
