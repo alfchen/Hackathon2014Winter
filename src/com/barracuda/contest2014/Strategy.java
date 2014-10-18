@@ -4,12 +4,12 @@ public class Strategy {
 	public final int OP_TOKEN_GAP_THRES = 3;
 	public final int OUR_TOKEN_GAP_THRES = 3;
 	
-	public double simpleBoardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens) {
+	public double simpleBoardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens, boolean isOurTurn) {
 		int opID = 3 - playerID;
 		return (Utils.getPoints(board, playerID) - Utils.getPoints(board, opID));
 	}
 	
-	public double boardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens) {
+	public double boardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens, boolean isOurTurn) {
 		//System.out.println("**** Op tokens: " + opTokens + " Our tokens: " + ourTokens);
 		double ourScore = 0.0, opScore = 0.0, ourTmp = 0.0, opTmp = 0.0;
 		double opNextMaxPoint = 0.0, opNextMaxEval = 0.0, pointEval = 0.0;
@@ -20,6 +20,7 @@ public class Strategy {
 		int ourNumMoves = 0, opNumMoves = 0;
 		int points = 0;
 		double laterWeight = 0.25;
+		
 		
 		ourTokens += 1;
 		
@@ -38,12 +39,12 @@ public class Strategy {
 							pointEval = (double) opTokens / (double) (z+1) * (double) points;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						} else {
-							pointEval = (double) points;// (double) (z+1);
+							pointEval = (double) points * points;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						}
 						opScore += pointEval * (double)(z+1);
 						if (pointEval > opNextMaxEval)
-							opNextMaxPoint = pointEval * (double)(z+1);
+							opNextMaxPoint = pointEval;
 					}
 					
 					// We
@@ -52,18 +53,18 @@ public class Strategy {
 					if (points > 0) {
 						ourNumMoves++;
 						if (z+1 > ourTokens) {
-							pointEval = (double) ourTokens / (double) (z+1) * (double) points / 1.5;// / (double) (z+1);
+							pointEval = (double) ourTokens / (double) (z+1) * (double) points * (double) points;//   / (double) (z+1);
 							//System.out.println("** ourpointEval: " + pointEval);
 						} else {
-							pointEval = (double) points * 1.5;
+							pointEval = (double) points * 2;
 							//System.out.println("** ourpointEval: " + pointEval);
 						}
-						if (points == Utils.getNumPointTetra(z))
-							if (z+1 <= opTokens)
-								pointEval *= 0.75;
+						//if (points == Utils.getNumPointTetra(z))
+						//	if (z+1 <= opTokens)
+						//		pointEval *= 0.75;
 						ourScore += pointEval * (double)(z+1);
 						if (pointEval > ourNextMaxEval)
-							ourNextMaxPoint = pointEval * (double)(z+1);
+							ourNextMaxPoint = pointEval;
 					}
 				}
 			}
