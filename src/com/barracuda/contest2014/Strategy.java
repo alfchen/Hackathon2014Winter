@@ -9,6 +9,46 @@ public class Strategy {
 	public final int LIST_TOP_NUM = 2;
 	public final int WAIT_GAP = 2;
 	public final int OUR_MAX_Z = 4;
+	public final static int SLOW_START_THRES = 10;
+	public final static int SLOW_START_TOKEN = 5;
+	
+	public static PlayerMessage enforcedStrategy(gamingTree gt, int[][][] board) {
+		if (gamingTree.madeMoves < SLOW_START_THRES) {
+			if (gt.game_state.tokens < SLOW_START_TOKEN + 1 - gt.game_state.player) {
+				return new PlayerWaitMessage(gt.msgid);
+			}
+			else {
+				int[][][] availPoints = new int[10][10][10];
+				int[] tmpmov=new int[3];
+				double dist = 0.0, minDist = 0.0;
+				boolean exist = false;
+				gt.getAvailpoints(board, gt.game_state.player, availPoints);
+				
+				for (int z = gt.game_state.tokens-1; z >= 0; z--) {
+					minDist = 100000.0;
+					exist = false;
+					for (int x = 9 - z; x >= 0; x--) {
+						for (int y = 9 - z - x; y >= 0; y--) {
+							if (availPoints[x][y][z] > 0) {
+								dist = ((double)x - (9.0-(double)z)/2.0) * ((double)x - (9.0-(double)z)/2.0)
+										+ ((double)y - (9.0-(double)z)/2.0) * ((double)y - (9.0-(double)z)/2.0);
+								if (minDist > dist) {
+									exist = true;
+									minDist = dist;
+									tmpmov[0]=x;tmpmov[1]=y;tmpmov[2]=z;
+								}
+							}
+						}
+					}
+					if (exist)
+						return new PlayerMoveMessage(gt.msgid, tmpmov);
+				}
+				
+				System.out.println("Deeply investigate!!!");
+			}
+		}
+		return null;
+	}
 	
 	public double simpleBoardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens, boolean isOurTurn) {
 		int opID = 3 - playerID;
@@ -35,6 +75,11 @@ public class Strategy {
 		} else {
 			max_z = 3;
 		}
+		
+		if (gamingTree.madeMoves < SLOW_START_THRES) {
+			
+		}
+		
 		
 		//int[][][] allTetra = Utils.allTetrahedron(board, playerID);
 		int ourNumMoves = 0, opNumMoves = 0;

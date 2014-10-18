@@ -67,6 +67,7 @@ public class ContestBot {
 
 			if (game_id != m.game_id) {
 				game_id = m.game_id;
+				gamingTree.madeMoves = 0;
 				System.out.println("new game " + game_id);
 			}
 			
