@@ -6,7 +6,7 @@ import java.util.Collections;
 public class Strategy {
 	public final int OP_TOKEN_GAP_THRES = 5;
 	public final int OUR_TOKEN_GAP_THRES = 5;
-	public final int LIST_TOP_NUM = 0;
+	public final int LIST_TOP_NUM = 2;
 	public final int WAIT_GAP = 2;
 	public final int OUR_MAX_Z = 4;
 	
@@ -24,11 +24,23 @@ public class Strategy {
 		double eval = Utils.getPoints(board, playerID) - Utils.getPoints(board, opID);
 		if (eval < 0)
 			eval *= (-eval);
+		int max_z = 5;
+		
+		if (eval > -20) {
+			max_z = 5;
+		} else if (eval > -30) {
+			max_z = 4;
+		} else if (eval > -40) {
+			max_z = 3;
+		} else {
+			max_z = 3;
+		}
 		
 		//int[][][] allTetra = Utils.allTetrahedron(board, playerID);
 		int ourNumMoves = 0, opNumMoves = 0;
 		int points = 0;
 		double laterWeight = 0.25;
+		double pointAdv = 0.0;
 		
 		ArrayList<Double> opScoreList = new ArrayList<Double>();
 		ArrayList<Double> ourScoreList = new ArrayList<Double>();
@@ -44,7 +56,7 @@ public class Strategy {
 				for (int y = 9 - z - x; y >= 0; y--) {
 					//System.out.println("-- points: " + points);
 					// Opponents
-
+					pointAdv = (double)((x+1) * (y+1)) / (double)((11-z)*(11-z)) * 4.0;
 					points = Utils.numNewlyTaken(x, y, z, board, opID);
 					
 					if (points > 0) {
@@ -69,10 +81,11 @@ public class Strategy {
 					// We
 					points = Utils.numNewlyTaken(x, y, z, board, playerID);
 					
-					if (points > 0 && z <= OUR_MAX_Z) {
+					
+					if (points > 0 && z <= max_z) {
 						ourNumMoves++;
 						if (z+1 > ourTokens) {
-							pointEval = (double) ourTokens / (double) (z+1) * (double) points;//   / (double) (z+1);
+							pointEval = pointAdv * (double) ourTokens / (double) (z+1) * (double) points;//   / (double) (z+1);
 							//System.out.println("** ourpointEval: " + pointEval);
 						} else {
 							pointEval = (double) points * (double) (ourTokens);
@@ -133,7 +146,7 @@ public class Strategy {
 
 		//System.out.println("OP: " + opScore + " OUR: " + ourScore + " ---");
 		
-		eval += (ourScore - opScore);
+		eval += (ourScore - 0.5 * opScore);
 		//System.out.println(" ------------------------------------------------ eval: " + eval);
 		return eval;
 	}
