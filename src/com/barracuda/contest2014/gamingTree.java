@@ -11,7 +11,7 @@ public class gamingTree {
 	public GameState game_state;
 	static int boardsize=10;
 	int mypid;
-	static int maxdepth=2;
+	static int maxdepth=0;
 	PlayerMessage resmsg;
 	
 	public gamingTree(MoveRequestMessage reqmsg){	
@@ -96,7 +96,7 @@ public class gamingTree {
 	
 	void updateBoard(int[][][] curboard, int[] move, int playerid){
 
-		System.out.println("update");
+	//	System.out.println("update");
 		ArrayDeque<int[]> upque=new ArrayDeque<int[]>();
 		upque.add(move);
 		while (!upque.isEmpty()){
@@ -113,17 +113,17 @@ public class gamingTree {
 				upque.add(l3);
 			}			
 		}	
-		System.out.println("update end");
+	//	System.out.println("update end");
 	}
 
 	
 	double dfsMoves(int[][][] board, boolean meOrNot, int movepid, int moveptoken, int opptoken, int depth){
 		//make move
-		System.out.println("begin");
+	//	System.out.println("begin "+depth);
 		int[][][] availpoints = getAvailpoints(board,movepid);
 		int[][][] tmpboard=new int[boardsize][boardsize][boardsize];
 
-		System.out.println("here1");
+	//	System.out.println("here1");
 		
 		ArrayList<Double> winsum=new ArrayList<Double>();
 		ArrayList<int[]> moves=new ArrayList<int[]>();
@@ -137,9 +137,9 @@ public class gamingTree {
 						copyBoard(board,tmpboard);
 						int[] tmpmov=new int[3];
 						tmpmov[0]=i;tmpmov[1]=j;tmpmov[2]=k;
-						System.out.println("here11");
+					//	System.out.println("here11");
 						updateBoard(tmpboard, tmpmov, movepid);
-						System.out.println("here12");
+					//	System.out.println("here12");
 						double rest=0;
 						if (meOrNot){
 						  if (depth < maxdepth){
@@ -147,6 +147,8 @@ public class gamingTree {
 						  }
 						  else {							  
 							  rest=(new Strategy()).boardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1);
+							  System.out.println("Yihua "+rest);
+						//	  rest=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1);
 						  }
 						}
 					    else {					      
@@ -157,7 +159,7 @@ public class gamingTree {
 					}
 				}
 
-		System.out.println("here2");
+	//	System.out.println("here2");
 		
 		if (!hasavailpoint){
 	    //game over!
@@ -172,7 +174,12 @@ public class gamingTree {
 		double waitwin=0;
 		//wait
 		if (meOrNot){
+			if (depth < maxdepth){
 			waitwin=dfsMoves(board, false, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken, depth);
+			}
+			else{
+				waitwin=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken, opptoken+1);
+			}
 		}
 		else {
 			waitwin=dfsMoves(board, true, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken, depth+1);
@@ -196,10 +203,12 @@ public class gamingTree {
 			if (max<waitwin){
 		    //need to wait
 				resmsg=new PlayerWaitMessage(msgid);
+				System.out.println("wait!");
 			}
 			else {
 				//need to claim point
 				resmsg=new PlayerMoveMessage(msgid, maxmove);
+				System.out.println("claim point!");
 			}
 		}
 		
@@ -221,8 +230,10 @@ public class gamingTree {
 		resmsg=null;
 		dfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
 		
-		if (resmsg!=null)
+		if (resmsg!=null){
+			System.out.println("!!!!return!");
 		  return resmsg;
+		}
 		else {
 			//random choice!
 			System.out.println("bug!!!!!Random choice!!!");
