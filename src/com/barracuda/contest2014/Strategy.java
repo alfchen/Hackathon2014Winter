@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Strategy {
-	public final int OP_TOKEN_GAP_THRES = 3;
-	public final int OUR_TOKEN_GAP_THRES = 3;
+	public final int OP_TOKEN_GAP_THRES = 5;
+	public final int OUR_TOKEN_GAP_THRES = 5;
+	public final int LIST_TOP_NUM = 10;
 	
 	public double simpleBoardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens, boolean isOurTurn) {
 		int opID = 3 - playerID;
@@ -42,13 +43,13 @@ public class Strategy {
 						opNumMoves++;
 					
 						if (z+1 > opTokens) {
-							pointEval = (double) opTokens / (double) (z+1) * (double) points;// (double) (z+1);
+							pointEval = (double) opTokens / (double) (z+1) * (double) points * 2;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						} else {
-							pointEval = (double) points * points;// (double) (z+1);
+							pointEval = (double) points;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						}
-						opScore += pointEval * (double)(z+1);
+						//opScore += pointEval;
 						if (pointEval > opNextMaxEval)
 							opNextMaxPoint = pointEval;
 						opScoreList.add(new Double(pointEval));
@@ -60,16 +61,16 @@ public class Strategy {
 					if (points > 0) {
 						ourNumMoves++;
 						if (z+1 > ourTokens) {
-							pointEval = (double) ourTokens / (double) (z+1) * (double) points * (double) points;//   / (double) (z+1);
+							pointEval = (double) ourTokens / (double) (z+1) * (double) points * 2;//   / (double) (z+1);
 							//System.out.println("** ourpointEval: " + pointEval);
 						} else {
-							pointEval = (double) points * 2;
+							pointEval = (double) points;
 							//System.out.println("** ourpointEval: " + pointEval);
 						}
 						//if (points == Utils.getNumPointTetra(z))
-						//	if (z+1 <= opTokens)
+						//	if (z+1 <= opTokens)opScore
 						//		pointEval *= 0.75;
-						ourScore += pointEval * (double)(z+1);
+						//ourScore += pointEval * (double)(z+1);
 						if (pointEval > ourNextMaxEval)
 							ourNextMaxPoint = pointEval;
 						ourScoreList.add(new Double(pointEval));
@@ -82,20 +83,38 @@ public class Strategy {
 		Collections.sort(ourScoreList);
 		Collections.reverse(ourScoreList);
 		
-		System.out.println("OP: " + opScore + " OUR: " + ourScore + " *** "
-				+ opNumMoves + " " + ourNumMoves + " " + opNextMaxPoint + " " + ourNextMaxPoint);
+		//System.out.println("OP: " + opScore + " OUR: " + ourScore + " *** "
+		//		+ opNumMoves + " " + ourNumMoves + " " + opNextMaxPoint + " " + ourNextMaxPoint);
+		
+		int count = 0;
 		
 		for (double score: opScoreList) {
-			System.out.println(" && " + score);
+			if (count < LIST_TOP_NUM)
+				count++;
+			//System.out.println(" && " + score);
+			opScore += score;
 		}
+		opScore /= 10.0;
+		opScore += opNextMaxPoint;
 		
-		opScore = opScore / (double) opNumMoves + opNextMaxPoint;
-		ourScore = ourScore / (double) ourNumMoves + ourNextMaxPoint;
+		count = 0;
+		
+		for (double score: ourScoreList) {
+			if (count < LIST_TOP_NUM)
+				count++;
+			//System.out.println(" && " + score);
+			ourScore += score;
+		}
+		ourScore /= 10.0;
+		ourScore += ourNextMaxPoint;
+		
+		//opScore = opScore / (double) opNumMoves + opNextMaxPoint;
+		//ourScore = ourScore / (double) ourNumMoves + ourNextMaxPoint;
 
-		System.out.println("OP: " + opScore + " OUR: " + ourScore + " ---");
+		//System.out.println("OP: " + opScore + " OUR: " + ourScore + " ---");
 		
 		eval += (ourScore - opScore);
-		
+		//System.out.println(" ------------------------------------------------ eval: " + eval);
 		return eval;
 	}
 }
