@@ -6,8 +6,8 @@ import java.util.Collections;
 public class Strategy {
 	public final int OP_TOKEN_GAP_THRES = 5;
 	public final int OUR_TOKEN_GAP_THRES = 5;
-	public final int LIST_TOP_NUM = 10;
-	public final int WAIT_GAP = 2;
+	public final int LIST_TOP_NUM = 4;
+	public final int WAIT_GAP = 1;
 	
 	public double simpleBoardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens, boolean isOurTurn) {
 		int opID = 3 - playerID;
@@ -48,10 +48,10 @@ public class Strategy {
 					
 						if (z+1 > opTokens + WAIT_GAP) {
 							pointEval = ((double) opTokens / (double) (z+1)) 
-									* (double) points * 2;// (double) (z+1);
+									* (double) points;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						} else {
-							pointEval = (double) points * (double) z;// (double) (z+1);
+							pointEval = (double) points * (double) (opTokens+1);// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						}
 						//opScore += pointEval;
@@ -71,7 +71,10 @@ public class Strategy {
 							pointEval = (double) ourTokens / (double) (z+1) * (double) points;//   / (double) (z+1);
 							//System.out.println("** ourpointEval: " + pointEval);
 						} else {
-							pointEval = (double) points * (double) z;
+							pointEval = (double) points * (double) (ourTokens+1);
+							if (ourTokens >= 4 && z+1 <= ourTokens) {
+								pointEval *= 10;
+							}
 							//System.out.println("** ourpointEval: " + pointEval);
 						}
 						//if (points == Utils.getNumPointTetra(z))
@@ -103,7 +106,7 @@ public class Strategy {
 			//System.out.println(" && " + score);
 			opScore += score;
 		}
-		opScore /= 10.0;
+		opScore /= (double) LIST_TOP_NUM;
 		opScore += opNextMaxPoint;
 		
 		count = 0;
@@ -114,7 +117,7 @@ public class Strategy {
 			//System.out.println(" && " + score);
 			ourScore += score;
 		}
-		ourScore /= 10.0;
+		ourScore /= (double) LIST_TOP_NUM;
 		ourScore += ourNextMaxPoint;
 		
 		//opScore = opScore / (double) opNumMoves + opNextMaxPoint;
