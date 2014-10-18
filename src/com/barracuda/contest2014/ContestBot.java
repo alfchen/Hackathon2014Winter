@@ -5,6 +5,7 @@
 package com.barracuda.contest2014;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class ContestBot {
 	private static final int RECONNECT_TIMEOUT = 15; // seconds
@@ -13,11 +14,13 @@ public class ContestBot {
 	private final String host;
 	private final int port;
 	private int game_id = -1;
+	private int player_id = -1;
 
 	public ContestBot(String host, int port) {
 		this.host = host;
 		this.port = port;
 		gt=new gamingTree();
+		Strategy.oppfirstmove=new ArrayList<Integer>();
 	}
 
 	private void run() {
@@ -64,10 +67,18 @@ public class ContestBot {
 		if (message.type.equals("request")) {
 			MoveRequestMessage m = (MoveRequestMessage)message;
 			//System.out.println(m);
+		    
+			if (player_id != m.state.opponent_id){
+				player_id=m.state.opponent_id;
+				Strategy.oppfirstmove.clear();
+				System.out.println("----------------\nnew opponent " + player_id);
+			}
+		
 
 			if (game_id != m.game_id) {
 				game_id = m.game_id;
 				gamingTree.madeMoves = 0;
+				Strategy.oppolasttoken=-1;
 				System.out.println("new game " + game_id);
 			}
 			

@@ -418,17 +418,17 @@ public class gamingTree {
 		
 		double waitwin=getArrayListAverage(waitwinsum);
 		
-			System.out.println("claim max prob: "+max);
-			System.out.println("wait prob: "+waitwin);
+		//	System.out.println("claim max prob: "+max);
+		//	System.out.println("wait prob: "+waitwin);
 			if ((!inside || max<waitwin) && gmoveptoken < 4){
 		    //need to wait
 				resmsg=new PlayerWaitMessage(msgid);
-				System.out.println("[Decision] wait!");
+			//	System.out.println("[Decision] wait!");
 			}
 			else {
 				//need to claim point
 				resmsg=new PlayerMoveMessage(msgid, maxmove);
-				System.out.println("[Decision] claim point! z:"+maxmove[2]);
+			//	System.out.println("[Decision] claim point! z:"+maxmove[2]);
 			}
 		
 	}
@@ -590,10 +590,10 @@ public class gamingTree {
 	//	dfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
 		bfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
 		long enddfst=(new Date()).getTime();
-		System.out.println("dfs: "+(enddfst-beginfulldfs));
+	//	System.out.println("dfs: "+(enddfst-beginfulldfs));
 		
 		if (resmsg!=null){
-			System.out.println("!!!!return!");
+		//	System.out.println("!!!!return!");
 		  return resmsg;
 		}
 		else {

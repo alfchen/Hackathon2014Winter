@@ -13,6 +13,14 @@ public class Strategy {
 	public final static int SLOW_START_THRES = 10;
 	public final static int SLOW_START_TOKEN = 5;
 	
+	
+	public static int oppolasttoken=-1;
+	static boolean isfirst=false;
+
+	//user
+	static ArrayList<Integer> oppfirstmove;
+	
+	
 	public static int decidedZ(int[][][] availPoints, int tokens){
 		for (int z = tokens-1; z >= 0; z--) 
 			for (int x = 9 - z; x >= 0; x--) {
@@ -104,9 +112,72 @@ public class Strategy {
 		
 	//	return pos;
 	}
+	static int getBestFirstMove(){
+	// System.out.println("profile size: "+Strategy.oppfirstmove.size());
+		if (Strategy.oppfirstmove.size() <= 3) {
+		//	 System.out.println("444444!!");
+			return 4;
+		}
+		Collections.sort(Strategy.oppfirstmove);
+		
+	//	for (int i=0;i<)
+		
+		int val=-1;
+		int cnt=0;
+		
+		for (int i=0;i<Strategy.oppfirstmove.size();i++){
+			if (val==-1){
+				val=Strategy.oppfirstmove.get(i);
+				cnt=1;
+			}
+			else {
+				if (val==Strategy.oppfirstmove.get(i))
+					cnt++;
+				else {
+					System.out.println(val+" !! "+cnt+" "+(cnt*1.0/Strategy.oppfirstmove.size()));
+					if ((cnt*1.0/Strategy.oppfirstmove.size()) >= 0.4999999){
+						 System.out.println("Oppo likes "+val+" !!");
+						return (val-1);
+					}
+					val=Strategy.oppfirstmove.get(i);
+					cnt=1;
+				}
+			}
+			
+		}
+		return 3;
+		
+	}
+	
+	public static int bottomTaken(int[][][] board){
+		int sum=0;
+		for (int k=0;k<1;k++)
+			for (int i=0;i+k<10;i++)
+				for (int j=0;i+j+k<10;j++){
+					if (board[i][j][k]!=0)
+						sum++;
+				}
+		return sum;
+	}
 	
 	public static PlayerMessage enforcedStrategy(gamingTree gt, int[][][] board) {
-		if (gamingTree.madeMoves < SLOW_START_THRES) {
+	   if (oppolasttoken==-1){
+		   isfirst=true;
+	   }
+	   if (oppolasttoken!=-1){
+		   if (isfirst && gt.game_state.opponent_tokens < oppolasttoken){
+			   isfirst=false;
+			   //used token
+			   int usdetoken=oppolasttoken-gt.game_state.opponent_tokens;
+			   System.out.println("Oppo used token "+usdetoken);
+			   Strategy.oppfirstmove.add(usdetoken);
+		   }
+	   }
+	   oppolasttoken=gt.game_state.opponent_tokens;
+	   
+	   int bt=bottomTaken(board);
+	   if (bt < 55*1.0/2) {
+//		if (gamingTree.madeMoves < SLOW_START_THRES) {
 		//	if (gt.game_state.tokens < SLOW_START_TOKEN + 1 - gt.game_state.player) {
 			if (false && gt.game_state.tokens < 2) {
 				return new PlayerWaitMessage(gt.msgid);
@@ -174,9 +245,12 @@ public class Strategy {
 							for (int oppy = 9 - oppz - oppx; oppy >= 0; oppy--) 
 								if (oppavailPoints[oppx][oppy][oppz] > 0) {
 								int oppo_oppz=getOppz(oppx,oppy,oppz,board,gt, Utils.getOpPlayerid(gt.game_state.player), gt.game_state.tokens+1);
-								if ((gamingTree.madeMoves >= 6 && (z>3)) || 
-										(oppo_oppz < oppz  
-						&& (!((gt.game_state.tokens+1) < (gt.game_state.opponent_tokens+1)) && (z<3)))){									
+								getBestFirstMove();
+								if ((gamingTree.madeMoves >= 17 && (z>=1))
+										|| (gamingTree.madeMoves >= 10 && (z>=2))
+										|| (gamingTree.madeMoves >= 6 && (z>=3)) || 
+										((oppo_oppz < oppz || oppz>=4)  
+						&& (!((gt.game_state.tokens+1) < (gt.game_state.opponent_tokens+1)) && (z<getBestFirstMove())))){									
 									System.out.println("can't wait! "+tmpmov[2]);
 									System.out.println("oppo: "+oppz+" oppo_oppz: "+oppo_oppz);
 									return new PlayerMoveMessage(gt.msgid, tmpmov);
