@@ -30,8 +30,8 @@ public class Strategy {
 					for (int x = 9 - z; x >= 0; x--) {
 						for (int y = 9 - z - x; y >= 0; y--) {
 							if (availPoints[x][y][z] > 0) {
-								dist = ((double)x - (9.0-(double)z)/2.0) * ((double)x - (9.0-(double)z)/2.0)
-										+ ((double)y - (9.0-(double)z)/2.0) * ((double)y - (9.0-(double)z)/2.0);
+								dist = ((double)x - (9.0-(double)z)/4.0) * ((double)x - (9.0-(double)z)/4.0)
+										+ ((double)y - (9.0-(double)z)/4.0) * ((double)y - (9.0-(double)z)/4.0);
 								if (minDist > dist) {
 									exist = true;
 									minDist = dist;

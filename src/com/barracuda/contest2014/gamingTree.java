@@ -137,7 +137,7 @@ public class gamingTree {
 	int estimateRemainingMoves(int availnum){
 		int res=availnum;
 		
-		int lowerbound=availnum*1/3;
+		int lowerbound=availnum*1/2;
 		if (madeMoves<27)
 			lowerbound=27-madeMoves;
 		if (lowerbound<availnum)
@@ -156,7 +156,7 @@ public class gamingTree {
 		if (rm>0)
 			lefttime=game_state.time_remaining_ns/rm;
 	//	System.out.println(usedtime+" "+lefttime+" "+rm+" "+availnum);
-		if (!(lefttime==-1 || usedtime*1000000*(1.2+usedfactor) < lefttime)){
+		if (!(lefttime==-1 || usedtime*1000000*(1.3+usedfactor) < lefttime)){
 			willGoDeeper=false;
 		}
 		
