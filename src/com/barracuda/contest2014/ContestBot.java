@@ -8,6 +8,7 @@ import java.io.IOException;
 
 public class ContestBot {
 	private static final int RECONNECT_TIMEOUT = 15; // seconds
+	gamingTree gt;
 
 	private final String host;
 	private final int port;
@@ -16,6 +17,7 @@ public class ContestBot {
 	public ContestBot(String host, int port) {
 		this.host = host;
 		this.port = port;
+		gt=new gamingTree();
 	}
 
 	private void run() {
@@ -68,7 +70,9 @@ public class ContestBot {
 				System.out.println("new game " + game_id);
 			}
 			
-			gamingTree gt=new gamingTree(m);
+			gamingTree.madeMoves++;
+			gt.setGamingTree(m);
+			
 			
 			return gt.getBestNexttMove(); 
 	/*		
@@ -117,7 +121,7 @@ public class ContestBot {
 		}
 
 		String host = "cuda.contest";
-		Integer port = 19999;
+		Integer port = 9999;
 
 		if (args.length > 0)
 		    host = args[0];
