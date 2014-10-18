@@ -118,13 +118,12 @@ public class Utils {
 						int d = 0;
 						for ( int[] it : opTaken ) {
 							d += (x - it[0]) * (x - it[0]) + (y - it[1]) * (y - it[1]);
-							if ( minDist > d ) {
-								minDist = d;
-								pos[0] = x;
-								pos[1] = y;
-								pos[2] = z;
-							}
-						
+						}
+						if ( minDist > d ) {
+							minDist = d;
+							pos[0] = x;
+							pos[1] = y;
+							pos[2] = z;
 						}
 					}
 				}
