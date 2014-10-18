@@ -6,7 +6,7 @@ import java.util.Collections;
 public class Strategy {
 	public final int OP_TOKEN_GAP_THRES = 5;
 	public final int OUR_TOKEN_GAP_THRES = 5;
-	public final int LIST_TOP_NUM = 1;
+	public final int LIST_TOP_NUM = 0;
 	public final int WAIT_GAP = 2;
 	public final int OUR_MAX_Z = 4;
 	
@@ -100,32 +100,34 @@ public class Strategy {
 		//System.out.println("OP: " + opScore + " OUR: " + ourScore + " *** "
 		//		+ opNumMoves + " " + ourNumMoves + " " + opNextMaxPoint + " " + ourNextMaxPoint);
 		
-		int count = 0;
-		
-		for (double score: opScoreList) {
-			if (count < LIST_TOP_NUM)
-				count++;
-			else
-				break;
-			//System.out.println(" && " + score);
-			opScore += score;
+		if (LIST_TOP_NUM != 0) {
+			int count = 0;
+			
+			for (double score: opScoreList) {
+				if (count < LIST_TOP_NUM)
+					count++;
+				else
+					break;
+				//System.out.println(" && " + score);
+				opScore += score;
+			}
+			opScore /= (double) LIST_TOP_NUM;
+			
+			
+			count = 0;
+			
+			for (double score: ourScoreList) {
+				if (count < LIST_TOP_NUM)
+					count++;
+				else
+					break;
+				//System.out.println(" && " + score);
+				ourScore += score;
+			}
+			ourScore /= (double) LIST_TOP_NUM;
 		}
-		opScore /= (double) LIST_TOP_NUM;
 		opScore += opNextMaxPoint;
-		
-		count = 0;
-		
-		for (double score: ourScoreList) {
-			if (count < LIST_TOP_NUM)
-				count++;
-			else
-				break;
-			//System.out.println(" && " + score);
-			ourScore += score;
-		}
-		ourScore /= (double) LIST_TOP_NUM;
 		ourScore += ourNextMaxPoint;
-		
 		//opScore = opScore / (double) opNumMoves + opNextMaxPoint;
 		//ourScore = ourScore / (double) ourNumMoves + ourNextMaxPoint;
 
