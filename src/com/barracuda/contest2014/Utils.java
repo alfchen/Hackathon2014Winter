@@ -109,19 +109,22 @@ public class Utils {
 			int yy = qy.poll();
 			int zz = qz.poll();
 			
-			if ( xx - 1 >= 0 && zz + 1 < 10 && board[xx][yy][zz] == 0 ) {
+			if ( xx - 1 >= 0 && board[xx-1][yy][zz] == player && yy + 1 < 10 && board[xx-1][yy+1][zz] == player
+					&& zz + 1 < 10 && board[xx-1][yy][zz+1] == 0 ) {
 				res++;
 				qx.add(xx-1);
 				qy.add(yy);
 				qz.add(zz+1);
 			}
-			if ( yy - 1 >= 0 && zz + 1 < 10 && board[xx][yy-1][zz+1] == 0 ) {
+			if ( y - 1 >= 0 && board[xx][yy-1][zz] == player && x + 1 < 10 && board[xx+1][yy-1][zz] == player
+					&& zz + 1 < 10 && board[xx][yy-1][zz+1] == 0 ) {
 				res++;
 				qx.add(xx);
 				qy.add(yy-1);
 				qz.add(z+1);
 			}
-			if ( zz + 1 < 10 && board[xx][yy][zz+1] == 0) {
+			if ( x + 1 < 10 && board[xx+1][yy][zz] == player && y + 1 < 10 && board[xx][yy+1][zz] == player
+					&& zz + 1 < 10 && board[xx][yy][zz+1] == 0) {
 				res++;
 				qx.add(xx);
 				qy.add(yy);
@@ -156,6 +159,91 @@ public class Utils {
 		}
 		
 		return inc;
+	}
+	
+	/**
+	 * If player takes this point, how many legal moves of opponent will be destroyed 
+	 */
+	static int[][][] destroyedPoints(int[][][] board, int playerId, int x, int y, int z) {
+		int[][][] destroyed = new int[10][10][10];
+		int[][][] opLegalMoves = new int[10][10][10];
+		
+		int[][][] claimed = new int[10][10][10]; // directly and indirectly claimed
+		
+		int op = 3 - playerId;
+				
+		for ( int xx = 0; xx < 10; ++xx ) {
+			for ( int yy = 0; xx + yy < 10; ++yy ) {
+				for ( int zz = 0; xx + yy + zz < 10; ++zz ) {
+					destroyed[xx][yy][zz] = 0;
+					claimed[xx][yy][zz] = 0;
+
+					if ( canTake(xx, yy, zz, board, op, new Integer(0)) )
+						opLegalMoves[xx][yy][zz] = 1;
+					else
+						opLegalMoves[xx][yy][zz] = 0;
+				}
+			}
+		}
+		
+		// player takes (x, y, z)
+		takeAndClaim(x, y, z, playerId, board, claimed);
+		
+		// destroyed = claimed - opLegalMoves 
+		for ( int xx = 0; xx < 10; ++xx ) {
+			for ( int yy = 0; xx + yy < 10; ++yy ) {
+				for ( int zz = 0; xx + yy + zz < 10; ++zz ) {
+					destroyed[xx][yy][zz] = claimed[xx][yy][zz] & opLegalMoves[xx][yy][zz];
+				}
+			}
+		}
+
+		return destroyed;
+	}
+	
+	static void takeAndClaim(int x, int y, int z, int playerId, int[][][] board, int[][][] claimed) {
+		for ( int zz = 0; zz < z; ++zz ) {
+			for ( int xx = x; xx < x + z - zz; ++xx ) {
+				for ( int yy = y; yy < y + z - zz - (xx - x); ++yy ) {
+					if ( board[xx][yy][zz] == 0 )
+						claimed[xx][yy][zz] = 1;
+				}
+			}
+		}
+		
+		Queue<Integer> qx = new LinkedList<Integer>();
+		Queue<Integer> qy = new LinkedList<Integer>();
+		Queue<Integer> qz = new LinkedList<Integer>();
+		qx.add(x);
+		qy.add(y);
+		qz.add(z);
+		while ( !qx.isEmpty() ) {
+			int xx = qx.poll();
+			int yy = qy.poll();
+			int zz = qz.poll();
+			
+			if ( xx - 1 >= 0 && board[xx-1][yy][zz] == playerId && yy + 1 < 10 && board[xx-1][yy+1][zz] == playerId
+					&& zz + 1 < 10 && board[xx-1][yy][zz+1] == 0 ) {
+				claimed[xx-1][yy][zz+1] = 1;
+				qx.add(xx-1);
+				qy.add(yy);
+				qz.add(zz+1);
+			}
+			if ( y - 1 >= 0 && board[xx][yy-1][zz] == playerId && x + 1 < 10 && board[xx+1][yy-1][zz] == playerId
+					&& zz + 1 < 10 && board[xx][yy-1][zz+1] == 0 ) {
+				claimed[xx][yy-1][zz+1] = 1;
+				qx.add(xx);
+				qy.add(yy-1);
+				qz.add(z+1);
+			}
+			if ( x + 1 < 10 && board[xx+1][yy][zz] == playerId && y + 1 < 10 && board[xx][yy+1][zz] == playerId
+					&& zz + 1 < 10 && board[xx][yy][zz+1] == 0) {
+				claimed[xx][yy][zz+1] = 1;
+				qx.add(xx);
+				qy.add(yy);
+				qz.add(zz+1);
+			}
+		}
 	}
 	
 	/**
