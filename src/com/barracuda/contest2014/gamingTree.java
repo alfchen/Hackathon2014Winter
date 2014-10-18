@@ -579,6 +579,12 @@ public class gamingTree {
 
 		resmsg=null;
 		
+		resmsg=Strategy.enforcedStrategy(this);
+		
+		if (resmsg!=null){
+			return resmsg;			
+		}
+		
 		beginfulldfs=(new Date()).getTime();
 		willGoDeeper=true;
 	//	dfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
