@@ -5,12 +5,16 @@ import java.util.ArrayList;
 
 //for basic util functions
 public class Utils {
+	static int[] numPointTetra = {1, 4, 10, 20, 35, 56, 84, 120, 165, 220};
 	
 	static int getOpPlayerid(int player){
 		if (player==1) return 2;
 		return 1;				
 	}
 
+	static int getNumPointTetra(int z) {
+		return numPointTetra[z];
+	}
 	/**
 	 * get all available tetrahedrons in current board
 	 * @return 
