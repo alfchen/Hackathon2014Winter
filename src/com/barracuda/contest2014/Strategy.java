@@ -10,7 +10,7 @@ public class Strategy {
 	public final int LIST_TOP_NUM = 2;
 	public final int WAIT_GAP = 2;
 	public final int OUR_MAX_Z = 4;
-	public final static int SLOW_START_THRES = 15;
+	public final static int SLOW_START_THRES = 10;
 	public final static int SLOW_START_TOKEN = 5;
 	
 	public static int decidedZ(int[][][] availPoints, int tokens){
