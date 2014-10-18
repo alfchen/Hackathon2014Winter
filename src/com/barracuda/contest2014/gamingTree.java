@@ -136,7 +136,10 @@ public class gamingTree {
 	
 	int estimateRemainingMoves(int availnum){
 		int res=availnum;
-		int lowerbound=27-madeMoves;
+		
+		int lowerbound=27;
+		if (madeMoves<27)
+			lowerbound=27-madeMoves;
 		if (lowerbound<availnum)
 		  res=(lowerbound+availnum)/2;
 		return res;
@@ -150,12 +153,12 @@ public class gamingTree {
 		int rm=estimateRemainingMoves(availnum);
 		if (rm>0)
 			lefttime=game_state.time_remaining_ns/rm;
-		System.out.println(usedtime+" "+lefttime+" "+rm+" "+availnum);
-		if (!(lefttime==-1 || usedtime*1000000*(1+usedfactor) < lefttime)){
+	//	System.out.println(usedtime+" "+lefttime+" "+rm+" "+availnum);
+		if (!(lefttime==-1 || usedtime*1000000*(1.0+usedfactor) < lefttime)){
 			willGoDeeper=false;
 		}
 		
-		if (depth>3)
+		if (depth>5)
 			willGoDeeper=false;
 	
 	}
@@ -211,12 +214,58 @@ public class gamingTree {
 			int depth=topmove.depth;    
 			int branch=topmove.branch;    
 			
-			
 			long begindfst=(new Date()).getTime();
 			int[][][] availpoints = new int[boardsize][boardsize][boardsize];
 		//	System.out.println("here0");
 			int availnum=getAvailpoints(board,movepid, availpoints);
 		//	setDepth(depth, availnum);
+			if (availnum==0){
+			    //game over!
+					int iw=amiwin(board);
+					double score=0;
+					if (iw>0)
+						score=MAXSCORE;
+					if (iw==0)
+						score=(MINSCORE+MAXSCORE)/2;
+					if (iw<0)				
+						score=MINSCORE;
+					if (branch==-2){
+						  //wait
+						  waitwinsum.add(score);
+					  }
+					  else {
+						  (movewinsum.get(branch)).add(score);
+					  }
+				}
+			
+			
+			if (!willGoDeeper){	
+				if (meOrNot){
+				double rest=(new Strategy()).boardEvaluation(board, mypid, moveptoken, opptoken, true);
+	    		  if (branch==-2){
+					  //wait
+					  waitwinsum.add(rest);
+				  }
+				  else {
+					  (movewinsum.get(branch)).add(rest);
+				  }
+				}
+				else {
+					double rest=(new Strategy()).boardEvaluation(board, mypid, moveptoken, opptoken, false);
+					 if (branch==-2){
+						  //wait
+						  waitwinsum.add(rest);
+					  }
+					  else {
+						  (movewinsum.get(branch)).add(rest);
+					  }
+					
+				}
+				continue;
+			}
+			
+			
+
 			
 			
 
@@ -230,7 +279,7 @@ public class gamingTree {
 					for (int k=0;i+j+k<boardsize && k<moveptoken;k++){
 						if (availpoints[i][j][k]>0){
 							double usedfactor=0;
-							if (handlednum>0) usedfactor=upque.size()*1.0/handlednum;
+						//	if (handlednum>0) usedfactor=upque.size()*1.0/handlednum;
 							setWillGoDeeper(depth,availnum,usedfactor);
 							int[][][] tmpboard=new int[boardsize][boardsize][boardsize];
 							hasavailpoint=true;
@@ -296,28 +345,10 @@ public class gamingTree {
 
 		//	System.out.println("here2");
 			
-			if (!hasavailpoint){
-		    //game over!
-				int iw=amiwin(board);
-				double score=0;
-				if (iw>0)
-					score=MAXSCORE;
-				if (iw==0)
-					score=(MINSCORE+MAXSCORE)/2;
-				if (iw<0)				
-					score=MINSCORE;
-				if (branch==-2){
-					  //wait
-					  waitwinsum.add(score);
-				  }
-				  else {
-					  (movewinsum.get(branch)).add(score);
-				  }
-			}
 			
 			//wait
 			double usedfactor=0;
-			if (handlednum>0) usedfactor=upque.size()*1.0/handlednum;
+	//		if (handlednum>0) usedfactor=upque.size()*1.0/handlednum;
 			setWillGoDeeper(depth,availnum,usedfactor);
 			int subbranch=branch;
 			if (branch==-1){
@@ -548,8 +579,8 @@ public class gamingTree {
 		
 		beginfulldfs=(new Date()).getTime();
 		willGoDeeper=true;
-		dfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
-	//	bfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
+	//	dfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
+		bfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
 		long enddfst=(new Date()).getTime();
 		System.out.println("dfs: "+(enddfst-beginfulldfs));
 		
