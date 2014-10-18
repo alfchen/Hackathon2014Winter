@@ -176,24 +176,25 @@ public class gamingTree {
         }
 	};
 	
-	void bfsMoves(int[][][] board, boolean meOrNot, int movepid, int moveptoken, int opptoken, int depth){		
+	void bfsMoves(int[][][] gboard, boolean gmeOrNot, int gmovepid, int gmoveptoken, int gopptoken, int gdepth){		
 		ArrayDeque<BfsStatus> upque=new ArrayDeque<BfsStatus>();
-		BfsStatus firstmove=new BfsStatus(board, meOrNot, movepid, moveptoken, opptoken, depth);
+		BfsStatus firstmove=new BfsStatus(gboard, gmeOrNot, gmovepid, gmoveptoken, gopptoken, gdepth);
 		
 		upque.add(firstmove);
 		while (!upque.isEmpty()){
 			BfsStatus topmove=upque.poll();
-/*			curboard[topmove[0]][topmove[1]][topmove[2]]=playerid;
-		//	System.out.println("update1 "+topmove[2]);
-			if (topmove[2] > 0){
-			//	System.out.println("update2 "+topmove[2]);
-				int[] l1=new int[3]; l1[0]=topmove[0];l1[1]=topmove[1];l1[2]=topmove[2]-1;			
-				int[] l2=new int[3]; l2[0]=topmove[0];l2[1]=topmove[1]+1;l2[2]=topmove[2]-1;
-				int[] l3=new int[3]; l3[0]=topmove[0]+1;l3[1]=topmove[1];l3[2]=topmove[2]-1;
-				upque.add(l1);
-				upque.add(l2);
-				upque.add(l3);
-			}*/	
+			
+			int[][][] board=topmove.board;
+			boolean meOrNot=topmove.meOrNot;
+			int movepid=topmove.movepid;
+			int moveptoken=topmove.moveptoken;
+			int opptoken=topmove.opptoken;
+			int depth=topmove.depth;    
+			
+			
+
+		//		upque.add(l1);
+
 		}	
 		
 	}
@@ -284,12 +285,15 @@ public class gamingTree {
 			}
 		}
 		
+		
 		double sum=0;
+		boolean inside=false;
 		double max=-1;
 		int[] maxmove=game_state.legal_moves[0];
 		for (int i=0;i<winsum.size();i++){
 			sum+=winsum.get(i);
-			if (winsum.get(i) > max){
+			if (!inside || winsum.get(i) > max){
+				inside=true;
 				max=winsum.get(i);
 				maxmove=moves.get(i);
 			}
@@ -299,7 +303,10 @@ public class gamingTree {
 		
 		if (depth==0 && meOrNot){
 		//decision time!
-			if (max<waitwin){
+
+			System.out.println("claim max prob: "+max);
+			System.out.println("wait prob: "+waitwin);
+			if (!inside || max<waitwin){
 		    //need to wait
 				resmsg=new PlayerWaitMessage(msgid);
 				System.out.println("wait!");
@@ -307,7 +314,7 @@ public class gamingTree {
 			else {
 				//need to claim point
 				resmsg=new PlayerMoveMessage(msgid, maxmove);
-				System.out.println("claim point!");
+				System.out.println("claim point! z:"+maxmove[2]);
 			}
 		}
 		
