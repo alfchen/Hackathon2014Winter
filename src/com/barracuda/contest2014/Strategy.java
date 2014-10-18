@@ -139,6 +139,10 @@ public class Strategy {
 			}
 			ourScore /= (double) LIST_TOP_NUM;
 		}
+		
+		if (ourTokens >= 3)
+			opNextMaxPoint *= 5;
+			
 		opScore += opNextMaxPoint;
 		ourScore += ourNextMaxPoint;
 		//opScore = opScore / (double) opNumMoves + opNextMaxPoint;
