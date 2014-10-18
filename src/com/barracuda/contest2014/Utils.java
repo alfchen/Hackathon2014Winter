@@ -1,5 +1,6 @@
 package com.barracuda.contest2014;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -100,23 +101,37 @@ public class Utils {
 		int[] c = new int[] {2, 2};
 		int minDist = 0;
 		
+		ArrayList<int[]> opTaken = new ArrayList<int[]>();
+		for ( int x = 0; x < 10; ++x ) {
+			for ( int y = 0; x + y < 10; ++y ) {
+				if ( board[x][y][0] == 3 - playerId ) {
+					opTaken.add(new int[]{x, y});
+				}
+			}
+		}
+
 		for ( int z = token; z >= 0; --z ) {
 			for ( int x = 0; x + z < 10; ++x ) {
 				for ( int y = 0; x + y + z < 10; ++y ) {
 				
 					if ( canTake(x, y, z, board, playerId, new Integer(0)) ) {
-						int d = (x - c[0]) * (x - c[0]) + (y - c[1]) * (y - c[1]);
-						if ( minDist > d ) {
-							minDist = d;
-							pos[0] = x;
-							pos[1] = y;
-							pos[2] = z;
+						int d = 0;
+						for ( int[] it : opTaken ) {
+							d += (x - it[0]) * (x - it[0]) + (y - it[1]) * (y - it[1]);
+							if ( minDist > d ) {
+								minDist = d;
+								pos[0] = x;
+								pos[1] = y;
+								pos[2] = z;
+							}
+						
 						}
 					}
 				}
 			
 			}
 		}
+		
 		
 		return pos;
 	}
