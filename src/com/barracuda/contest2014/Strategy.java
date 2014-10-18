@@ -7,6 +7,7 @@ public class Strategy {
 	public final int OP_TOKEN_GAP_THRES = 5;
 	public final int OUR_TOKEN_GAP_THRES = 5;
 	public final int LIST_TOP_NUM = 10;
+	public final int WAIT_GAP = 2;
 	
 	public double simpleBoardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens, boolean isOurTurn) {
 		int opID = 3 - playerID;
@@ -27,9 +28,12 @@ public class Strategy {
 		
 		ArrayList<Double> opScoreList = new ArrayList<Double>();
 		ArrayList<Double> ourScoreList = new ArrayList<Double>();
-		
-		
-		ourTokens += 1;
+				
+		if (isOurTurn) {
+			opTokens += 1;
+		} else {
+			ourTokens += 1;
+		}
 		
 		for (int z = 6; z > 0; z--) {
 			for (int x = 9 - z; x >= 0; x--) {
@@ -42,11 +46,12 @@ public class Strategy {
 					if (points > 0) {
 						opNumMoves++;
 					
-						if (z+1 > opTokens) {
-							pointEval = (double) opTokens / (double) (z+1) * (double) points * 2;// (double) (z+1);
+						if (z+1 > opTokens + WAIT_GAP) {
+							pointEval = ((double) opTokens / (double) (z+1)) 
+									* (double) points * 2;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						} else {
-							pointEval = (double) points * (double)z;// (double) (z+1);
+							pointEval = (double) points * (double) z;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						}
 						//opScore += pointEval;
@@ -62,8 +67,8 @@ public class Strategy {
 					
 					if (points > 0) {
 						ourNumMoves++;
-						if (z+1 > ourTokens) {
-							pointEval = (double) ourTokens / (double) (z+1) * (double) points * 2;//   / (double) (z+1);
+						if (z+1 > ourTokens + WAIT_GAP) {
+							pointEval = (double) ourTokens / (double) (z+1) * (double) points;//   / (double) (z+1);
 							//System.out.println("** ourpointEval: " + pointEval);
 						} else {
 							pointEval = (double) points * (double) z;
