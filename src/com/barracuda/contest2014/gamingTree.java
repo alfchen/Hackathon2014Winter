@@ -420,7 +420,7 @@ public class gamingTree {
 		
 			System.out.println("claim max prob: "+max);
 			System.out.println("wait prob: "+waitwin);
-			if (!inside || max<waitwin){
+			if ((!inside || max<waitwin) && gmoveptoken < 4){
 		    //need to wait
 				resmsg=new PlayerWaitMessage(msgid);
 				System.out.println("[Decision] wait!");
