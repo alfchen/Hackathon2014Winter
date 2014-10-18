@@ -52,6 +52,7 @@ public class Utils {
 	 * @return 
 	 */
 	static int[][][] allTetrahedron(int[][][] board, int player) {
+		
 		int[][][] v = new int[10][10][10];
 
 		for ( int i = 0; i < 10; ++i ) {
@@ -62,7 +63,9 @@ public class Utils {
 			}
 		}
 		
-		for ( int z = 9; z >= 0; --z ) {
+		int heightLimit = 5; // (# op's token) + 3;
+		
+		for ( int z = heightLimit; z >= 0; --z ) {
 			for ( int x = 9 - z; x >= 0; --x ) {
 				for ( int y = 9 - x - z; y >= 0; --y ) {
 
@@ -87,14 +90,49 @@ public class Utils {
 		return v;
 	}
 	
+	/** 
+	 * If player takes (x, y, z), how many points will be indirectly claimed? 
+	 */
+	static int numAffected(int x, int y, int z, int[][][] board, int player) {
+		
+		
+		return 0;
+	}
+	
 	/**
-	 * Does the point (x, y, z) dominate a tetrahedron for player
-	 * @return
+	 * If player takes (x, y, z), how many points below he will obtain?
+	 * @return 0 if player cannot take (x, y, z)
+	 */
+	static int numNewlyTaken(int x, int y, int z, int[][][] board, int player) {
+		if ( board[x][y][z] != 0 )
+			return 0;
+
+		int inc = 1;
+
+		for ( int zz = 0; zz < z; ++zz ) {
+			for ( int xx = x; xx < x + z - zz; ++xx ) {
+				for ( int yy = y; yy < y + z - zz; ++yy ) {
+					if ( board[xx][yy][zz] == 0 )
+						inc++;
+					else if ( board[xx][yy][zz] == player )
+						;
+					else if ( board[xx][yy][zz] == 3 - player )// point occupied by opponent!
+						return 0;
+				}
+			}
+		}
+		
+		return inc;
+	}
+	
+	/**
+	 * Can player take (x, y, z) ?
+	 * @return true if can take
 	 */
 	static boolean canTake(int x, int y, int z, int[][][] board, int player, Integer inc) {
 		for ( int zz = 0; zz < z; ++zz ) {
-			for ( int xx = x; xx < x + z; ++xx ) {
-				for ( int yy = y; yy < y + z; ++yy ) {
+			for ( int xx = x; xx < x + z - zz; ++xx ) {
+				for ( int yy = y; yy < y + z - zz; ++yy ) {
 					if ( board[xx][yy][zz] == 0 )
 						inc++;
 					else if ( board[xx][yy][zz] == player )
@@ -107,4 +145,5 @@ public class Utils {
 		
 		return true;
 	}
+	
 }
