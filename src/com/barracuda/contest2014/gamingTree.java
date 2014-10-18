@@ -17,6 +17,8 @@ public class gamingTree {
 	long beginfulldfs;
 	boolean willGoDeeper;
 	static int madeMoves=0;
+	double MAXSCORE=1000;
+	double MINSCORE=-1000;
 	
 	public void setGamingTree(MoveRequestMessage reqmsg){	
 		msgid=reqmsg.id;
@@ -140,7 +142,7 @@ public class gamingTree {
 		return res;
 	}
 	
-	void setWillGoDeeper(int depth, int availnum){
+	void setWillGoDeeper(int depth, int availnum, double usedfactor){
 		if (!willGoDeeper) return;
 		
 		long usedtime=((new Date()).getTime()-beginfulldfs);
@@ -149,13 +151,21 @@ public class gamingTree {
 		if (rm>0)
 			lefttime=game_state.time_remaining_ns/rm;
 		System.out.println(usedtime+" "+lefttime+" "+rm+" "+availnum);
-		if (!(lefttime==-1 || usedtime*1000000 < lefttime)){
+		if (!(lefttime==-1 || usedtime*1000000*(1+usedfactor) < lefttime)){
 			willGoDeeper=false;
 		}
 		
-		if (depth>5)
+		if (depth>3)
 			willGoDeeper=false;
 	
+	}
+	
+	double getArrayListAverage(ArrayList<Double> arrd){
+		int sum=0;
+		for (int i=0;i<arrd.size();i++){
+			sum+=arrd.get(i);
+		}
+		return sum/arrd.size();		
 	}
 	
 	class BfsStatus{
@@ -165,24 +175,33 @@ public class gamingTree {
         int moveptoken;
         int opptoken;
         int depth;
+        int branch;
         
-        public BfsStatus(int[][][] board, boolean meOrNot, int movepid, int moveptoken, int opptoken, int depth){
-        	board=board;
-        	meOrNot=meOrNot;
-        	movepid=movepid;
-            moveptoken=moveptoken;
-            opptoken=opptoken;
-            depth=depth;        	
+        public BfsStatus(int[][][] mboard, boolean mmeOrNot, int mmovepid, int mmoveptoken, int mopptoken, int mdepth, int mbranch){
+        	board=mboard;
+        	meOrNot=mmeOrNot;
+        	movepid=mmovepid;
+            moveptoken=mmoveptoken;
+            opptoken=mopptoken;
+            depth=mdepth;      
+            branch=mbranch;
         }
 	};
 	
 	void bfsMoves(int[][][] gboard, boolean gmeOrNot, int gmovepid, int gmoveptoken, int gopptoken, int gdepth){		
 		ArrayDeque<BfsStatus> upque=new ArrayDeque<BfsStatus>();
-		BfsStatus firstmove=new BfsStatus(gboard, gmeOrNot, gmovepid, gmoveptoken, gopptoken, gdepth);
+		BfsStatus firstmove=new BfsStatus(gboard, gmeOrNot, gmovepid, gmoveptoken, gopptoken, gdepth, -1);
+		
 		
 		upque.add(firstmove);
+		ArrayList<ArrayList<Double>> movewinsum=new ArrayList<ArrayList<Double>>();
+		ArrayList<Double> waitwinsum=new ArrayList<Double>();
+		ArrayList<int[]> moves=new ArrayList<int[]>();
+		int handlednum=-1;
+		
 		while (!upque.isEmpty()){
 			BfsStatus topmove=upque.poll();
+			handlednum++;
 			
 			int[][][] board=topmove.board;
 			boolean meOrNot=topmove.meOrNot;
@@ -190,13 +209,194 @@ public class gamingTree {
 			int moveptoken=topmove.moveptoken;
 			int opptoken=topmove.opptoken;
 			int depth=topmove.depth;    
+			int branch=topmove.branch;    
 			
+			
+			long begindfst=(new Date()).getTime();
+			int[][][] availpoints = new int[boardsize][boardsize][boardsize];
+		//	System.out.println("here0");
+			int availnum=getAvailpoints(board,movepid, availpoints);
+		//	setDepth(depth, availnum);
 			
 			
 
-		//		upque.add(l1);
+		//	System.out.println("here1");
+			
+			
+			boolean hasavailpoint=false;
+			int wincnt=0;
+			for (int i=0;i<boardsize;i++)
+				for (int j=0;i+j<boardsize;j++)
+					for (int k=0;i+j+k<boardsize && k<moveptoken;k++){
+						if (availpoints[i][j][k]>0){
+							double usedfactor=0;
+							if (handlednum>0) usedfactor=upque.size()*1.0/handlednum;
+							setWillGoDeeper(depth,availnum,usedfactor);
+							int[][][] tmpboard=new int[boardsize][boardsize][boardsize];
+							hasavailpoint=true;
+							copyBoard(board,tmpboard);
+							int[] tmpmov=new int[3];
+							tmpmov[0]=i;tmpmov[1]=j;tmpmov[2]=k;
+						//	System.out.println("here11");
+							updateBoard(tmpboard, tmpmov, movepid);
+						//	System.out.println("here12");
+							double rest=0;
+							int subbranch=branch;
+							if (branch==-1){
+								subbranch=wincnt;
+								ArrayList<Double> branchmv=new ArrayList<Double>();
+								movewinsum.add(branchmv);
+								moves.add(tmpmov);
+							}
+							if (meOrNot){
+							  if (willGoDeeper){								  
+								  BfsStatus nxtmove=new BfsStatus(tmpboard, false, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken-(k+1), depth+1, subbranch);
+								  upque.add(nxtmove);
+							  }
+							  else {		
+								  rest=(new Strategy()).boardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1, false);
+								  if (subbranch==-2){
+									  //wait
+									  waitwinsum.add(rest);
+								  }
+								  else {
+									  (movewinsum.get(subbranch)).add(rest);
+								  }
+								  								 
+							//	  System.out.println("Yihua "+rest);
+							//	  rest=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1, false);
+							  }
+							}
+						    else {		
+						    	if (willGoDeeper){
+						    		BfsStatus nxtmove=new BfsStatus(tmpboard, true, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken-(k+1), depth+1, subbranch);
+						    		upque.add(nxtmove);
+						    	}
+						    	else{
+						    		rest=(new Strategy()).boardEvaluation(tmpboard, mypid, opptoken+1, moveptoken-(k+1), true);
+						    		if (subbranch==-2){
+										  //wait
+										  waitwinsum.add(rest);
+									  }
+									  else {
+										  (movewinsum.get(subbranch)).add(rest);
+									  }
+						    		//	  System.out.println("Yihua "+rest);
+									//	  rest=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1, true);
+						    	}
+						    }
+						//	if (k==1){
+						//		System.out.println("!!!!k=1 "+rest);
+						//	}
+						//	winsum.add(rest);
+							
+							wincnt++;
+						}
+					}
 
-		}	
+		//	System.out.println("here2");
+			
+			if (!hasavailpoint){
+		    //game over!
+				int iw=amiwin(board);
+				double score=0;
+				if (iw>0)
+					score=MAXSCORE;
+				if (iw==0)
+					score=(MINSCORE+MAXSCORE)/2;
+				if (iw<0)				
+					score=MINSCORE;
+				if (branch==-2){
+					  //wait
+					  waitwinsum.add(score);
+				  }
+				  else {
+					  (movewinsum.get(branch)).add(score);
+				  }
+			}
+			
+			//wait
+			double usedfactor=0;
+			if (handlednum>0) usedfactor=upque.size()*1.0/handlednum;
+			setWillGoDeeper(depth,availnum,usedfactor);
+			int subbranch=branch;
+			if (branch==-1){
+				subbranch=-2;
+			}
+
+			double waitwin=0;
+			
+			if (meOrNot){
+				if (willGoDeeper){
+					BfsStatus nxtmove=new BfsStatus(board, false, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken, depth+1, subbranch);
+					upque.add(nxtmove);
+				}
+				else{
+					waitwin=(new Strategy()).boardEvaluation(board, mypid, moveptoken, opptoken+1, false);
+					if (subbranch==-2){
+						  //wait
+						  waitwinsum.add(waitwin);
+					  }
+					  else {
+						  (movewinsum.get(subbranch)).add(waitwin);
+					  }
+				//	waitwin=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken, opptoken+1, false);
+				}
+			}
+			else {
+				if (willGoDeeper){
+					BfsStatus nxtmove=new BfsStatus(board, true, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken, depth+1, subbranch);
+					upque.add(nxtmove);
+				}
+				else {
+					waitwin=(new Strategy()).boardEvaluation(board, mypid, opptoken+1, moveptoken, true);
+					if (subbranch==-2){
+						  //wait
+						  waitwinsum.add(waitwin);
+					  }
+					  else {
+						  (movewinsum.get(subbranch)).add(waitwin);
+					  }
+				//	waitwin=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, opptoken+1, moveptoken, true);
+				}
+			}			
+			
+			long enddfst=(new Date()).getTime();
+			System.out.println("depth "+depth+" avail#: "+availnum+" dfs one round: "+(enddfst-begindfst));
+		}
+		
+		//make decision
+		
+		double sum=0;
+		boolean inside=false;
+		double max=-1;
+		int[] maxmove=game_state.legal_moves[0];
+		for (int i=0;i<movewinsum.size();i++){
+			double avei=getArrayListAverage(movewinsum.get(i));
+	//		System.out.println("sum!!!!k="+(moves.get(i))[2]+" "+avei);
+			sum+=avei;
+		//	if (!inside || ((moves.get(i))[2] > maxmove[2]) || (((moves.get(i))[2] <= maxmove[2]) && (winsum.get(i) > max))){
+			if (!inside || avei > max){
+     			inside=true;
+				max=avei;
+				maxmove=moves.get(i);
+			}
+		}
+		
+		double waitwin=getArrayListAverage(waitwinsum);
+		
+			System.out.println("claim max prob: "+max);
+			System.out.println("wait prob: "+waitwin);
+			if (!inside || max<waitwin){
+		    //need to wait
+				resmsg=new PlayerWaitMessage(msgid);
+				System.out.println("[Decision] wait!");
+			}
+			else {
+				//need to claim point
+				resmsg=new PlayerMoveMessage(msgid, maxmove);
+				System.out.println("[Decision] claim point! z:"+maxmove[2]);
+			}
 		
 	}
 	
@@ -207,7 +407,7 @@ public class gamingTree {
 		int[][][] availpoints = new int[boardsize][boardsize][boardsize];
 		int availnum=getAvailpoints(board,movepid, availpoints);
 	//	setDepth(depth, availnum);
-		setWillGoDeeper(depth,availnum);
+		setWillGoDeeper(depth,availnum,0);
 		int[][][] tmpboard=new int[boardsize][boardsize][boardsize];
 
 	//	System.out.println("here1");
@@ -262,10 +462,10 @@ public class gamingTree {
 	    //game over!
 			int iw=amiwin(board);
 			if (iw>0)
-				return 1.0;
+				return MAXSCORE;
 			if (iw==0)
-				return 0.5;
-			return 0;
+				return (MINSCORE+MAXSCORE)/2;
+			return MINSCORE;
 		}
 
 		double waitwin=0;
@@ -275,7 +475,7 @@ public class gamingTree {
 			waitwin=dfsMoves(board, false, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken, depth+1);
 			}
 			else{
-				waitwin=(new Strategy()).boardEvaluation(tmpboard, mypid, moveptoken, opptoken+1, false);
+				waitwin=(new Strategy()).boardEvaluation(board, mypid, moveptoken, opptoken+1, false);
 			//	waitwin=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken, opptoken+1, false);
 			}
 		}
@@ -284,7 +484,7 @@ public class gamingTree {
 			waitwin=dfsMoves(board, true, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken, depth+1);
 			}
 			else {
-				waitwin=(new Strategy()).boardEvaluation(tmpboard, mypid, opptoken+1, moveptoken, true);
+				waitwin=(new Strategy()).boardEvaluation(board, mypid, opptoken+1, moveptoken, true);
 			//	waitwin=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, opptoken+1, moveptoken, true);
 			}
 		}
@@ -349,6 +549,7 @@ public class gamingTree {
 		beginfulldfs=(new Date()).getTime();
 		willGoDeeper=true;
 		dfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
+	//	bfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
 		long enddfst=(new Date()).getTime();
 		System.out.println("dfs: "+(enddfst-beginfulldfs));
 		
