@@ -94,9 +94,16 @@ public class Utils {
 	 * If player takes (x, y, z), how many points will be indirectly claimed? 
 	 */
 	static int numAffected(int x, int y, int z, int[][][] board, int player) {
+		int res = 0;
 		
+		if ( x - 1 >= 0 && z + 1 < 10 && board[x-1][y][z+1] == 0 )
+			res++;
+		if ( y - 1 >= 0 && z + 1 < 10 && board[x][y-1][z+1] == 0 )
+			res++;
+		if ( z + 1 < 10 && board[x][y][z+1] == 0)
+			res++;
 		
-		return 0;
+		return res;
 	}
 	
 	/**
@@ -111,7 +118,7 @@ public class Utils {
 
 		for ( int zz = 0; zz < z; ++zz ) {
 			for ( int xx = x; xx < x + z - zz; ++xx ) {
-				for ( int yy = y; yy < y + z - zz; ++yy ) {
+				for ( int yy = y; yy < y + z - zz - (xx - x); ++yy ) {
 					if ( board[xx][yy][zz] == 0 )
 						inc++;
 					else if ( board[xx][yy][zz] == player )
@@ -132,7 +139,7 @@ public class Utils {
 	static boolean canTake(int x, int y, int z, int[][][] board, int player, Integer inc) {
 		for ( int zz = 0; zz < z; ++zz ) {
 			for ( int xx = x; xx < x + z - zz; ++xx ) {
-				for ( int yy = y; yy < y + z - zz; ++yy ) {
+				for ( int yy = y; yy < y + z - zz - (xx - x); ++yy ) {
 					if ( board[xx][yy][zz] == 0 )
 						inc++;
 					else if ( board[xx][yy][zz] == player )
