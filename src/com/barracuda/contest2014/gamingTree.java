@@ -137,7 +137,7 @@ public class gamingTree {
 	int estimateRemainingMoves(int availnum){
 		int res=availnum;
 		
-		int lowerbound=27;
+		int lowerbound=0;
 		if (madeMoves<27)
 			lowerbound=27-madeMoves;
 		if (lowerbound<availnum)
