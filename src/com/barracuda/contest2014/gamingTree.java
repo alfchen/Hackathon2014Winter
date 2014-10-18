@@ -192,6 +192,7 @@ public class gamingTree {
 			int depth=topmove.depth;    
 			
 			
+			
 
 		//		upque.add(l1);
 
@@ -247,6 +248,9 @@ public class gamingTree {
 								//	  rest=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1, true);
 					    	}
 					    }
+						if (k==1){
+							System.out.println("!!!!k=1 "+rest);
+						}
 						winsum.add(rest);
 						moves.add(tmpmov);
 					}
@@ -291,9 +295,11 @@ public class gamingTree {
 		double max=-1;
 		int[] maxmove=game_state.legal_moves[0];
 		for (int i=0;i<winsum.size();i++){
+			System.out.println("sum!!!!k="+(moves.get(i))[2]+" "+winsum.get(i));
 			sum+=winsum.get(i);
-			if (!inside || winsum.get(i) > max){
-				inside=true;
+		//	if (!inside || ((moves.get(i))[2] > maxmove[2]) || (((moves.get(i))[2] <= maxmove[2]) && (winsum.get(i) > max))){
+			if (!inside || (winsum.get(i) > max)){
+     			inside=true;
 				max=winsum.get(i);
 				maxmove=moves.get(i);
 			}
@@ -309,17 +315,19 @@ public class gamingTree {
 			if (!inside || max<waitwin){
 		    //need to wait
 				resmsg=new PlayerWaitMessage(msgid);
-				System.out.println("wait!");
+				System.out.println("[Decision] wait!");
 			}
 			else {
 				//need to claim point
 				resmsg=new PlayerMoveMessage(msgid, maxmove);
-				System.out.println("claim point! z:"+maxmove[2]);
+				System.out.println("[Decision] claim point! z:"+maxmove[2]);
 			}
 		}
 		
+		System.out.println("wait!!!! "+waitwin);
 		sum+=waitwin;
 		double average=sum/(winsum.size()+1);	
+		System.out.println("average!!!! "+average);
 		
 		long enddfst=(new Date()).getTime();
 		System.out.println("depth "+depth+" avail#: "+availnum+" dfs one round: "+(enddfst-begindfst));
