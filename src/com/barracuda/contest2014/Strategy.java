@@ -6,8 +6,9 @@ import java.util.Collections;
 public class Strategy {
 	public final int OP_TOKEN_GAP_THRES = 5;
 	public final int OUR_TOKEN_GAP_THRES = 5;
-	public final int LIST_TOP_NUM = 4;
-	public final int WAIT_GAP = 1;
+	public final int LIST_TOP_NUM = 1;
+	public final int WAIT_GAP = 2;
+	public final int OUR_MAX_Z = 4;
 	
 	public double simpleBoardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens, boolean isOurTurn) {
 		int opID = 3 - playerID;
@@ -21,6 +22,9 @@ public class Strategy {
 		double ourNextMaxPoint = 0.0, ourNextMaxEval = 0.0;
 		int opID = 3 - playerID;
 		double eval = Utils.getPoints(board, playerID) - Utils.getPoints(board, opID);
+		if (eval < 0)
+			eval *= (-eval);
+		
 		//int[][][] allTetra = Utils.allTetrahedron(board, playerID);
 		int ourNumMoves = 0, opNumMoves = 0;
 		int points = 0;
@@ -35,7 +39,7 @@ public class Strategy {
 			ourTokens += 1;
 		}
 		
-		for (int z = 6; z > 0; z--) {
+		for (int z = 6; z >= 0; z--) {
 			for (int x = 9 - z; x >= 0; x--) {
 				for (int y = 9 - z - x; y >= 0; y--) {
 					//System.out.println("-- points: " + points);
@@ -46,12 +50,12 @@ public class Strategy {
 					if (points > 0) {
 						opNumMoves++;
 					
-						if (z+1 > opTokens + WAIT_GAP) {
+						if (z+1 > opTokens) {
 							pointEval = ((double) opTokens / (double) (z+1)) 
 									* (double) points;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						} else {
-							pointEval = (double) points * (double) (opTokens+1);// (double) (z+1);
+							pointEval = (double) points * (double) (opTokens);// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						}
 						//opScore += pointEval;
@@ -65,16 +69,14 @@ public class Strategy {
 					// We
 					points = Utils.numNewlyTaken(x, y, z, board, playerID);
 					
-					if (points > 0) {
+					if (points > 0 && z <= OUR_MAX_Z) {
 						ourNumMoves++;
-						if (z+1 > ourTokens + WAIT_GAP) {
+						if (z+1 > ourTokens) {
 							pointEval = (double) ourTokens / (double) (z+1) * (double) points;//   / (double) (z+1);
 							//System.out.println("** ourpointEval: " + pointEval);
 						} else {
-							pointEval = (double) points * (double) (ourTokens+1);
-							if (ourTokens >= 4 && z+1 <= ourTokens) {
-								pointEval *= 10;
-							}
+							pointEval = (double) points * (double) (ourTokens);
+
 							//System.out.println("** ourpointEval: " + pointEval);
 						}
 						//if (points == Utils.getNumPointTetra(z))
@@ -103,6 +105,8 @@ public class Strategy {
 		for (double score: opScoreList) {
 			if (count < LIST_TOP_NUM)
 				count++;
+			else
+				break;
 			//System.out.println(" && " + score);
 			opScore += score;
 		}
@@ -114,6 +118,8 @@ public class Strategy {
 		for (double score: ourScoreList) {
 			if (count < LIST_TOP_NUM)
 				count++;
+			else
+				break;
 			//System.out.println(" && " + score);
 			ourScore += score;
 		}
