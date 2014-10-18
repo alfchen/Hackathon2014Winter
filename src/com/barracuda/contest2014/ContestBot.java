@@ -72,6 +72,7 @@ public class ContestBot {
 				return new PlayerWaitMessage(m.id);
 			}
 			else {
+				
 				int i = (int)(Math.random() * m.state.legal_moves.length);
 				return new PlayerMoveMessage(m.id, m.state.legal_moves[i]);
 			}
