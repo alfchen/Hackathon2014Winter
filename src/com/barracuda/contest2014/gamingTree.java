@@ -395,7 +395,7 @@ public class gamingTree {
 			}			
 			
 			long enddfst=(new Date()).getTime();
-			System.out.println("depth "+depth+" avail#: "+availnum+" dfs one round: "+(enddfst-begindfst));
+		//	System.out.println("depth "+depth+" avail#: "+availnum+" dfs one round: "+(enddfst-begindfst));
 		}
 		
 		//make decision
