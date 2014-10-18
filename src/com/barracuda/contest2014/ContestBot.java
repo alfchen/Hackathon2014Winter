@@ -67,7 +67,12 @@ public class ContestBot {
 				game_id = m.game_id;
 				System.out.println("new game " + game_id);
 			}
-
+			
+			gamingTree gt=new gamingTree(m);
+			
+			return gt.getBestNexttMove(); 
+	/*		
+		//	System.out.println("opp id " + m.state.player);
 			if (Math.random() < 0.5) {
 				return new PlayerWaitMessage(m.id);
 			}
@@ -75,6 +80,8 @@ public class ContestBot {
 				int i = (int)(Math.random() * m.state.legal_moves.length);
 				return new PlayerMoveMessage(m.id, m.state.legal_moves[i]);
 			}
+		
+		*/
 		}
 		else if (message.type.equals("move_result")) {
 			//ResultMessage r = (ResultMessage)message;
