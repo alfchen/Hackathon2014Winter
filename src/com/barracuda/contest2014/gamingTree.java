@@ -579,7 +579,7 @@ public class gamingTree {
 
 		resmsg=null;
 		
-		resmsg=Strategy.enforcedStrategy(this);
+		resmsg=Strategy.enforcedStrategy(this,tempboard);
 		
 		if (resmsg!=null){
 			return resmsg;			
