@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ContestBot" default="jar" basedir=".">
+    <property name="src" location="src"/>
+    <property name="bin" location="bin"/>
+    <property name="lib" location="lib"/>
+    <property name="jarfile" location="${ant.project.name}.jar"/>
+
+    <fileset id="lib.jars" dir="${lib}">
+        <include name="**/*.jar"/>
+    </fileset>
+
+    <path id="lib.path">
+        <fileset refid="lib.jars"/>
+    </path>
+
+    <target name="compile">
+        <mkdir dir="${bin}"/>
+        <javac srcdir="src"
+               destdir="bin"
+               includeAntRuntime="no"
+               classpathref="lib.path">
+            <compilerarg value="-nowarn"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile" description="Build jar">
+        <jar jarfile="${jarfile}" basedir="${bin}" manifest="Manifest">
+            <!-- Merge library jars into final jar file -->
+            <zipgroupfileset refid="lib.jars"/>
+        </jar>
+    </target>
+
+    <target name="clean" description="Remove build and dist directories">
+        <delete dir="${bin}"/>
+        <delete file="${jarfile}"/>
+    </target>
+</project>
