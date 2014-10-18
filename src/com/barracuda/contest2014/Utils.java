@@ -62,7 +62,7 @@ public class Utils {
 			}
 		}
 		
-		for ( int z = 9; z >= 1; --z ) {
+		for ( int z = 9; z >= 0; --z ) {
 			for ( int x = 9 - z; x >= 0; --x ) {
 				for ( int y = 9 - x - z; y >= 0; --y ) {
 
@@ -104,7 +104,6 @@ public class Utils {
 				}
 			}
 		}
-		
 		
 		return true;
 	}
