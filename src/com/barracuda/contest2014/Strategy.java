@@ -35,10 +35,10 @@ public class Strategy {
 						opNumMoves++;
 					
 						if (z+1 > opTokens) {
-							pointEval = (double) opTokens / (double) (z+1) * (double) points / (double) (z+1);
+							pointEval = (double) opTokens / (double) (z+1) * (double) points;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						} else {
-							pointEval = (double) points / (double) (z+1);
+							pointEval = (double) points;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						}
 						opScore += pointEval * (double)(z+1);
@@ -52,10 +52,10 @@ public class Strategy {
 					if (points > 0) {
 						ourNumMoves++;
 						if (z+1 > ourTokens) {
-							pointEval = (double) ourTokens / (double) (z+1) * (double) points / (double) (z+1);
+							pointEval = (double) ourTokens / (double) (z+1) * (double) points / 1.5;// / (double) (z+1);
 							//System.out.println("** ourpointEval: " + pointEval);
 						} else {
-							pointEval = (double) points / (double) (z+1);
+							pointEval = (double) points * 1.5;
 							//System.out.println("** ourpointEval: " + pointEval);
 						}
 						if (points == Utils.getNumPointTetra(z))
