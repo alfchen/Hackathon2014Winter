@@ -19,7 +19,7 @@ public class Utils {
 	 * get all available tetrahedrons in current board
 	 * @return 
 	 */
-	static int[][][] allTetrahedron(int[][][] board) {
+	static int[][][] allTetrahedron(int[][][] board, int player) {
 		int[][][] v = new int[10][10][10];
 
 		for ( int i = 0; i < 10; ++i ) {
@@ -30,13 +30,15 @@ public class Utils {
 			}
 		}
 		
-		for ( int z = 9; z >= 0; --z ) {
+		for ( int z = 9; z >= 1; --z ) {
 			for ( int x = 9 - z; x >= 0; --x ) {
 				for ( int y = 9 - x - z; y >= 0; --y ) {
 
-					if ( board[x][y][z] == 0 ) { // empty point
-					// points below: (x,y,z-1), (x+1,y,z-1), and (x,y+1,z-1)	
-						
+					if ( board[x][y][z] == 0 ) { // empty point, points below: (x,y,z-1), (x+1,y,z-1), and (x,y+1,z-1)	
+						// can we (Play1) take it?
+						if ( canTake(x, y, z, 1) )
+
+					
 					}
 					
 				}
@@ -45,5 +47,16 @@ public class Utils {
 		
 		
 		return v;
+	}
+	
+	/**
+	 * Does the point (x, y, z) dominate a tetrahedron for player
+	 * @return
+	 */
+	static boolean canTake(int x, int y, int z, int player) {
+
+		
+		
+		return false;
 	}
 }
