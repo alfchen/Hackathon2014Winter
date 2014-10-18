@@ -1,5 +1,8 @@
 package com.barracuda.contest2014;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class Strategy {
 	public final int OP_TOKEN_GAP_THRES = 3;
 	public final int OUR_TOKEN_GAP_THRES = 3;
@@ -20,6 +23,9 @@ public class Strategy {
 		int ourNumMoves = 0, opNumMoves = 0;
 		int points = 0;
 		double laterWeight = 0.25;
+		
+		ArrayList<Double> opScoreList = new ArrayList<Double>();
+		ArrayList<Double> ourScoreList = new ArrayList<Double>();
 		
 		
 		ourTokens += 1;
@@ -45,6 +51,7 @@ public class Strategy {
 						opScore += pointEval * (double)(z+1);
 						if (pointEval > opNextMaxEval)
 							opNextMaxPoint = pointEval;
+						opScoreList.add(new Double(pointEval));
 					}
 					
 					// We
@@ -65,13 +72,22 @@ public class Strategy {
 						ourScore += pointEval * (double)(z+1);
 						if (pointEval > ourNextMaxEval)
 							ourNextMaxPoint = pointEval;
+						ourScoreList.add(new Double(pointEval));
 					}
 				}
 			}
 		}
+		Collections.sort(opScoreList);
+		Collections.reverse(opScoreList);
+		Collections.sort(ourScoreList);
+		Collections.reverse(ourScoreList);
 		
 		System.out.println("OP: " + opScore + " OUR: " + ourScore + " *** "
 				+ opNumMoves + " " + ourNumMoves + " " + opNextMaxPoint + " " + ourNextMaxPoint);
+		
+		for (double score: opScoreList) {
+			System.out.println(" && " + score);
+		}
 		
 		opScore = opScore / (double) opNumMoves + opNextMaxPoint;
 		ourScore = ourScore / (double) ourNumMoves + ourNextMaxPoint;
