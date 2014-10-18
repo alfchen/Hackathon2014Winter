@@ -39,10 +39,10 @@ public class Utils {
 						Integer inc = 0;
 						Integer dec = 0;
 						if ( canTake(x, y, z, board, player, inc) )  {
-							v[x][y][z] = inc;
+							v[x][y][z] = inc + 1;
 						}
 						else if ( canTake(x, y, z, board, 3 - player, dec) ) {
-							v[x][y][z] = -1 * dec;
+							v[x][y][z] = -1 * dec - 1;
 						}
 					
 					}
@@ -63,8 +63,10 @@ public class Utils {
 		for ( int zz = 0; zz < z; ++zz ) {
 			for ( int xx = x; xx < x + z; ++xx ) {
 				for ( int yy = y; yy < y + z; ++yy ) {
-					if ( board[xx][yy][zz] == 0 || board[xx][yy][zz] == player )
+					if ( board[xx][yy][zz] == 0 )
 						inc++;
+					else if ( board[xx][yy][zz] == player )
+						;
 					else
 						return false;
 				}
