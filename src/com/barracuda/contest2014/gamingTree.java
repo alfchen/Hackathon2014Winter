@@ -148,13 +148,15 @@ public class gamingTree {
 	void setWillGoDeeper(int depth, int availnum, double usedfactor){
 		if (!willGoDeeper) return;
 		
+		if (madeMoves<5) willGoDeeper=false;
+		
 		long usedtime=((new Date()).getTime()-beginfulldfs);
 		long lefttime=-1;
 		int rm=estimateRemainingMoves(availnum);
 		if (rm>0)
 			lefttime=game_state.time_remaining_ns/rm;
 	//	System.out.println(usedtime+" "+lefttime+" "+rm+" "+availnum);
-		if (!(lefttime==-1 || usedtime*1000000*(1.0+usedfactor) < lefttime)){
+		if (!(lefttime==-1 || usedtime*1000000*(1.25+usedfactor) < lefttime)){
 			willGoDeeper=false;
 		}
 		
