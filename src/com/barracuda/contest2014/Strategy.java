@@ -64,6 +64,47 @@ public class Strategy {
 	//	System.out.println("update end");
 	}
 	
+	static int bestMoveVal(int[][][] board, int playerId, int x, int y, int z) {
+		int[] pos = new int[3]; // pos[0] = x, pos[1] = y, pos[2] = z;
+		// only look at bottom layer
+		int[] c = new int[] {2, 2};
+		int minDist = 0;
+		
+		ArrayList<int[]> opTaken = new ArrayList<int[]>();
+		for ( int tx = 0; tx < 10; ++tx ) {
+			for ( int ty = 0; tx + ty < 10; ++ty ) {
+				if ( board[tx][ty][0] == 3 - playerId ) {
+					opTaken.add(new int[]{tx, ty});
+				}
+			}
+		}
+
+/*		for ( int z = token; z >= 0; --z ) {
+			for ( int x = 0; x + z < 10; ++x ) {
+				for ( int y = 0; x + y + z < 10; ++y ) {
+			*/	
+			//		if ( Utils.canTake(x, y, z, board, playerId, new Integer(0)) ) {
+						int d = 0;
+						for ( int[] it : opTaken ) {
+							d += (x - it[0]) * (x - it[0]) + (y - it[1]) * (y - it[1]);
+						}
+						return d;
+			/*			if ( minDist > d ) {
+							minDist = d;
+							pos[0] = x;
+							pos[1] = y;
+							pos[2] = z;
+						}*/
+			//		}
+			//	}
+			
+	//		}
+	//	}
+		
+		
+	//	return pos;
+	}
+	
 	public static PlayerMessage enforcedStrategy(gamingTree gt, int[][][] board) {
 		if (gamingTree.madeMoves < SLOW_START_THRES) {
 		//	if (gt.game_state.tokens < SLOW_START_TOKEN + 1 - gt.game_state.player) {
@@ -75,6 +116,7 @@ public class Strategy {
 				int[] tmpmov=new int[3];
 				int[] tmpmovz=new int[3];
 				double dist = 0.0, minDist = 0.0, minDistz = 0.0;
+				int minbmval, minbmvalz;
 				int maxpointnum=0;
 				int maxpointnumz=0;
 				boolean exist = false;
@@ -84,6 +126,8 @@ public class Strategy {
 		//		for (int z = gt.game_state.tokens-1; z >= 0; z--) {
 					minDist = 100000.0;
 					minDistz = 100000.0;
+					minbmval = 1000000;
+					minbmvalz = 1000000;
 					exist = false;
 					for (int x = 9 - z; x >= 0; x--) {
 						for (int y = 9 - z - x; y >= 0; y--) {
@@ -95,14 +139,23 @@ public class Strategy {
 								
 								dist = ((double)x - (9.0-(double)z)/4.0) * ((double)x - (9.0-(double)z)/4.0)
 										+ ((double)y - (9.0-(double)z)/4.0) * ((double)y - (9.0-(double)z)/4.0);
-								if ((z > oppz) && (maxpointnumz < newpointnum || ((maxpointnumz == newpointnum) && minDistz > dist))) {
+								
+								int bmval=bestMoveVal(board, gt.game_state.player, x, y, z);
+								if ((z > oppz) 
+										&& (maxpointnumz < newpointnum 
+												|| ((maxpointnumz == newpointnum) && minbmvalz > bmval)
+												|| ((maxpointnumz == newpointnum) && (minbmvalz == bmval) && minDistz > dist))) {
 									exist = true;
 									minDistz = dist;
+									minbmvalz = bmval;
 									maxpointnumz = newpointnum;
 									tmpmovz[0]=x;tmpmovz[1]=y;tmpmovz[2]=z;
 								}
-								if (maxpointnum < newpointnum || ((maxpointnum == newpointnum) && minDist > dist)) {
+								if (maxpointnum < newpointnum
+										|| ((maxpointnum == newpointnum) && minbmval > bmval)
+										|| ((maxpointnum == newpointnum) && (minbmval == bmval) && minDist > dist)) {
 									minDist = dist;
+									minbmval = bmval;
 									maxpointnum = newpointnum;
 									tmpmov[0]=x;tmpmov[1]=y;tmpmov[2]=z;
 								}
@@ -121,7 +174,9 @@ public class Strategy {
 							for (int oppy = 9 - oppz - oppx; oppy >= 0; oppy--) 
 								if (oppavailPoints[oppx][oppy][oppz] > 0) {
 								int oppo_oppz=getOppz(oppx,oppy,oppz,board,gt, Utils.getOpPlayerid(gt.game_state.player), gt.game_state.tokens+1);
-								if (oppo_oppz < oppz  && (!((gt.game_state.tokens+1) < (gt.game_state.opponent_tokens+1)) && (z<3))){									
+								if ((gamingTree.madeMoves >= 6 && (z>3)) || 
+										(oppo_oppz < oppz  
+						&& (!((gt.game_state.tokens+1) < (gt.game_state.opponent_tokens+1)) && (z<3)))){									
 									System.out.println("can't wait! "+tmpmov[2]);
 									System.out.println("oppo: "+oppz+" oppo_oppz: "+oppo_oppz);
 									return new PlayerMoveMessage(gt.msgid, tmpmov);
