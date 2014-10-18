@@ -108,4 +108,17 @@ public class Utils {
 		
 		return false;
 	}
+	
+	static int getPoints(int[][][] board, int id) {
+		int score = 0;
+		for (int z = 9; z >= 0; z--) {
+			for (int x = 9 - z; x >= 0; x--) {
+				for (int y = 9 - z - x; y >= 0; y--) {
+					if (board[x][y][z] == id)
+						score++;
+				}
+			}
+		}
+		return score;
+	}
 }
