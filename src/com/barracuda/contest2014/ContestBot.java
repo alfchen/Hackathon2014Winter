@@ -117,7 +117,7 @@ public class ContestBot {
 		}
 
 		String host = "cuda.contest";
-		Integer port = 9999;
+		Integer port = 19999;
 
 		if (args.length > 0)
 		    host = args[0];

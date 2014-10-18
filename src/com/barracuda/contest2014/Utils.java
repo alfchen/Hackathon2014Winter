@@ -1,15 +1,47 @@
 package com.barracuda.contest2014;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 
 //for basic util functions
 public class Utils {
 	static int[] numPointTetra = {1, 4, 10, 20, 35, 56, 84, 120, 165, 220};
+	static int boardsize=10;
 	
 	static int getOpPlayerid(int player){
 		if (player==1) return 2;
 		return 1;				
+	}
+	
+	static int[][][] copyBoard(int[][][] curboard){
+		int[][][] resboard=new int[boardsize][boardsize][boardsize];
+		
+		for (int i=0;i<boardsize;i++)
+			for (int j=0;i+j<boardsize;j++)
+				for (int k=0;i+j+k<boardsize;k++)
+			//	  if (i+j+k<boardsize){
+			//		System.out.println("("+i+","+j+","+k+" -- "+curboard[i][j][k]+")\n");
+					    resboard[i][j][k]=curboard[i][j][k];
+			//	}
+		return resboard;		
+	};
+	
+	static void updateBoard(int[][][] curboard, int[] move, int playerid){
+		PriorityQueue<int[]> upque=new PriorityQueue<int[]>();
+		upque.add(move);
+		while (!upque.isEmpty()){
+			int[] topmove=upque.poll();
+			curboard[topmove[0]][topmove[1]][topmove[2]]=playerid;
+			if (topmove[2]>0){
+				int[] l1=new int[3]; l1[0]=topmove[0];l1[1]=topmove[1];l1[2]=topmove[2]-1;			
+				int[] l2=new int[3]; l2[0]=topmove[0];l2[1]=topmove[1]+1;l2[2]=topmove[2]-1;
+				int[] l3=new int[3]; l3[0]=topmove[0]+1;l3[1]=topmove[1];l3[2]=topmove[2]-1;
+				upque.add(l1);
+				upque.add(l2);
+				upque.add(l3);
+			}			
+		}		
 	}
 
 	static int getNumPointTetra(int z) {
