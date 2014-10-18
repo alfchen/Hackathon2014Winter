@@ -4,6 +4,10 @@ public class Strategy {
 	public final int OP_TOKEN_GAP_THRES = 3;
 	public final int OUR_TOKEN_GAP_THRES = 3;
 	
+	public double simpleBoardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens) {
+		int opID = (playerID == 1)? 2: 1;
+		return (Utils.getPoints(board, playerID) - Utils.getPoints(board, opID));
+	}
 	
 	public double boardEvaluation(int[][][] board, int playerID, int ourTokens, int opTokens) {
 		double ourScore = 0.0, opScore = 0.0, ourTmp = 0.0, opTmp = 0.0;
