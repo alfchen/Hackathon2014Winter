@@ -35,9 +35,15 @@ public class Utils {
 				for ( int y = 9 - x - z; y >= 0; --y ) {
 
 					if ( board[x][y][z] == 0 ) { // empty point, points below: (x,y,z-1), (x+1,y,z-1), and (x,y+1,z-1)	
-						// can we (Play1) take it?
-						if ( canTake(x, y, z, 1) )
-
+						// can we take it?
+						Integer inc = 0;
+						Integer dec = 0;
+						if ( canTake(x, y, z, board, player, inc) )  {
+							v[x][y][z] = inc + 1;
+						}
+						else if ( canTake(x, y, z, board, 3 - player, dec) ) {
+							v[x][y][z] = -1 * dec - 1;
+						}
 					
 					}
 					
@@ -53,8 +59,19 @@ public class Utils {
 	 * Does the point (x, y, z) dominate a tetrahedron for player
 	 * @return
 	 */
-	static boolean canTake(int x, int y, int z, int player) {
-
+	static boolean canTake(int x, int y, int z, int[][][] board, int player, Integer inc) {
+		for ( int zz = 0; zz < z; ++zz ) {
+			for ( int xx = x; xx < x + z; ++xx ) {
+				for ( int yy = y; yy < y + z; ++yy ) {
+					if ( board[xx][yy][zz] == 0 )
+						inc++;
+					else if ( board[xx][yy][zz] == player )
+						;
+					else
+						return false;
+				}
+			}
+		}
 		
 		
 		return false;
