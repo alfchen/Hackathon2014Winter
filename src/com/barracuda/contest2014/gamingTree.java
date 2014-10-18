@@ -2,6 +2,7 @@ package com.barracuda.contest2014;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.PriorityQueue;
 
 public class gamingTree {
@@ -11,10 +12,13 @@ public class gamingTree {
 	public GameState game_state;
 	static int boardsize=10;
 	int mypid;
-	static int maxdepth=0;
+	int maxdepth=0;
 	PlayerMessage resmsg;
+	long beginfulldfs;
+	boolean willGoDeeper;
+	static int madeMoves=0;
 	
-	public gamingTree(MoveRequestMessage reqmsg){	
+	public void setGamingTree(MoveRequestMessage reqmsg){	
 		msgid=reqmsg.id;
 		request=reqmsg.request;
 		game_id=reqmsg.game_id;
@@ -34,8 +38,9 @@ public class gamingTree {
 	};
 	
 	
-	int[][][] getAvailpoints(int[][][] board, int movepid){
-		int[][][] resavail = new int[boardsize][boardsize][boardsize];
+	 int getAvailpoints(int[][][] board, int movepid, int[][][] resavail){
+	//	int[][][] resavail = new int[boardsize][boardsize][boardsize];
+		 int availcnt=0;
 
 		for (int i=0;i<boardsize;i++)
 			for (int j=0;i+j<boardsize;j++)
@@ -48,18 +53,20 @@ public class gamingTree {
 					if (board[i][j][k]==0){
 						if (k==0){
 							resavail[i][j][k]=1;
+							availcnt++;
 						}
 						else {
 						   if ((board[i][j][k-1]==movepid || resavail[i][j][k-1]==1)
 						     && (board[i+1][j][k-1]==movepid || resavail[i+1][j][k-1]==1)
 						     && (board[i][j+1][k-1]==movepid || resavail[i][j+1][k-1]==1)
 								   ){
-							   resavail[i][j][k]=1;							   
+							   resavail[i][j][k]=1;		
+							   availcnt++;
 						   }
 						}						
 					}
 				}
-		return resavail;
+		return availcnt;
 		
 	}
 	
@@ -116,11 +123,89 @@ public class gamingTree {
 	//	System.out.println("update end");
 	}
 
+	void setDepth(int availnum, int depth){
+		int delta=0;
+	//	if (availnum<50)
+	//		maxdepth=1;
+	//	if (availnum<10)
+	//		maxdepth=2;
+	//	maxdepth=depth+delta;
+	}
+	
+	int estimateRemainingMoves(int availnum){
+		int res=availnum;
+		int lowerbound=27-madeMoves;
+		if (lowerbound<availnum)
+		  res=(lowerbound+availnum)/2;
+		return res;
+	}
+	
+	void setWillGoDeeper(int depth, int availnum){
+		if (!willGoDeeper) return;
+		
+		long usedtime=((new Date()).getTime()-beginfulldfs);
+		long lefttime=-1;
+		int rm=estimateRemainingMoves(availnum);
+		if (rm>0)
+			lefttime=game_state.time_remaining_ns/rm;
+		System.out.println(usedtime+" "+lefttime+" "+rm+" "+availnum);
+		if (!(lefttime==-1 || usedtime*1000000 < lefttime)){
+			willGoDeeper=false;
+		}
+		
+		if (depth>5)
+			willGoDeeper=false;
+	
+	}
+	
+	class BfsStatus{
+		int[][][] board;
+		boolean meOrNot;
+        int movepid;
+        int moveptoken;
+        int opptoken;
+        int depth;
+        
+        public BfsStatus(int[][][] board, boolean meOrNot, int movepid, int moveptoken, int opptoken, int depth){
+        	board=board;
+        	meOrNot=meOrNot;
+        	movepid=movepid;
+            moveptoken=moveptoken;
+            opptoken=opptoken;
+            depth=depth;        	
+        }
+	};
+	
+	void bfsMoves(int[][][] board, boolean meOrNot, int movepid, int moveptoken, int opptoken, int depth){		
+		ArrayDeque<BfsStatus> upque=new ArrayDeque<BfsStatus>();
+		BfsStatus firstmove=new BfsStatus(board, meOrNot, movepid, moveptoken, opptoken, depth);
+		
+		upque.add(firstmove);
+		while (!upque.isEmpty()){
+			BfsStatus topmove=upque.poll();
+/*			curboard[topmove[0]][topmove[1]][topmove[2]]=playerid;
+		//	System.out.println("update1 "+topmove[2]);
+			if (topmove[2] > 0){
+			//	System.out.println("update2 "+topmove[2]);
+				int[] l1=new int[3]; l1[0]=topmove[0];l1[1]=topmove[1];l1[2]=topmove[2]-1;			
+				int[] l2=new int[3]; l2[0]=topmove[0];l2[1]=topmove[1]+1;l2[2]=topmove[2]-1;
+				int[] l3=new int[3]; l3[0]=topmove[0]+1;l3[1]=topmove[1];l3[2]=topmove[2]-1;
+				upque.add(l1);
+				upque.add(l2);
+				upque.add(l3);
+			}*/	
+		}	
+		
+	}
 	
 	double dfsMoves(int[][][] board, boolean meOrNot, int movepid, int moveptoken, int opptoken, int depth){
 		//make move
-	//	System.out.println("begin "+depth);
-		int[][][] availpoints = getAvailpoints(board,movepid);
+		long begindfst=(new Date()).getTime();
+		System.out.println("begin "+depth);
+		int[][][] availpoints = new int[boardsize][boardsize][boardsize];
+		int availnum=getAvailpoints(board,movepid, availpoints);
+	//	setDepth(depth, availnum);
+		setWillGoDeeper(depth,availnum);
 		int[][][] tmpboard=new int[boardsize][boardsize][boardsize];
 
 	//	System.out.println("here1");
@@ -142,18 +227,25 @@ public class gamingTree {
 					//	System.out.println("here12");
 						double rest=0;
 						if (meOrNot){
-						  if (depth < maxdepth){
-							  rest=dfsMoves(tmpboard, false, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken-(k+1), depth);
+						  if (willGoDeeper){
+							  rest=dfsMoves(tmpboard, false, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken-(k+1), depth+1);
 						  }
 						  else {							  
-							  rest=(new Strategy()).boardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1);
-							  System.out.println("Yihua "+rest);
-						//	  rest=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1);
+							  rest=(new Strategy()).boardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1, false);
+						//	  System.out.println("Yihua "+rest);
+						//	  rest=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1, false);
 						  }
 						}
-					    else {					      
+					    else {		
+					    	if (willGoDeeper){
 					    	rest=dfsMoves(tmpboard, true, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken-(k+1), depth+1);
-						}
+					    	}
+					    	else{
+					    		rest=(new Strategy()).boardEvaluation(tmpboard, mypid, opptoken+1, moveptoken-(k+1), true);
+								//	  System.out.println("Yihua "+rest);
+								//	  rest=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken-(k+1), opptoken+1, true);
+					    	}
+					    }
 						winsum.add(rest);
 						moves.add(tmpmov);
 					}
@@ -174,15 +266,22 @@ public class gamingTree {
 		double waitwin=0;
 		//wait
 		if (meOrNot){
-			if (depth < maxdepth){
-			waitwin=dfsMoves(board, false, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken, depth);
+			if (willGoDeeper){
+			waitwin=dfsMoves(board, false, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken, depth+1);
 			}
 			else{
-				waitwin=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken, opptoken+1);
+				waitwin=(new Strategy()).boardEvaluation(tmpboard, mypid, moveptoken, opptoken+1, false);
+			//	waitwin=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, moveptoken, opptoken+1, false);
 			}
 		}
 		else {
+			if (willGoDeeper){
 			waitwin=dfsMoves(board, true, Utils.getOpPlayerid(movepid), opptoken+1, moveptoken, depth+1);
+			}
+			else {
+				waitwin=(new Strategy()).boardEvaluation(tmpboard, mypid, opptoken+1, moveptoken, true);
+			//	waitwin=(new Strategy()).simpleBoardEvaluation(tmpboard, mypid, opptoken+1, moveptoken, true);
+			}
 		}
 		
 		double sum=0;
@@ -215,6 +314,9 @@ public class gamingTree {
 		sum+=waitwin;
 		double average=sum/(winsum.size()+1);	
 		
+		long enddfst=(new Date()).getTime();
+		System.out.println("depth "+depth+" avail#: "+availnum+" dfs one round: "+(enddfst-begindfst));
+		
 		return average;
 	}
 	
@@ -228,7 +330,12 @@ public class gamingTree {
 		mypid=game_state.player;
 
 		resmsg=null;
+		
+		beginfulldfs=(new Date()).getTime();
+		willGoDeeper=true;
 		dfsMoves(tempboard, true, game_state.player, game_state.tokens, game_state.opponent_tokens, 0);
+		long enddfst=(new Date()).getTime();
+		System.out.println("dfs: "+(enddfst-beginfulldfs));
 		
 		if (resmsg!=null){
 			System.out.println("!!!!return!");
