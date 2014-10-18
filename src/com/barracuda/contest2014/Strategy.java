@@ -46,12 +46,14 @@ public class Strategy {
 							pointEval = (double) opTokens / (double) (z+1) * (double) points * 2;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						} else {
-							pointEval = (double) points;// (double) (z+1);
+							pointEval = (double) points * (double)z;// (double) (z+1);
 							//System.out.println("^^ oppointEval: " + pointEval);
 						}
 						//opScore += pointEval;
-						if (pointEval > opNextMaxEval)
+						if (pointEval > opNextMaxEval) {
 							opNextMaxPoint = pointEval;
+							opNextMaxEval = pointEval;
+						}
 						opScoreList.add(new Double(pointEval));
 					}
 					
@@ -64,15 +66,17 @@ public class Strategy {
 							pointEval = (double) ourTokens / (double) (z+1) * (double) points * 2;//   / (double) (z+1);
 							//System.out.println("** ourpointEval: " + pointEval);
 						} else {
-							pointEval = (double) points;
+							pointEval = (double) points * (double) z;
 							//System.out.println("** ourpointEval: " + pointEval);
 						}
 						//if (points == Utils.getNumPointTetra(z))
 						//	if (z+1 <= opTokens)opScore
 						//		pointEval *= 0.75;
 						//ourScore += pointEval * (double)(z+1);
-						if (pointEval > ourNextMaxEval)
+						if (pointEval > ourNextMaxEval) {
 							ourNextMaxPoint = pointEval;
+							opNextMaxEval = pointEval;
+						}
 						ourScoreList.add(new Double(pointEval));
 					}
 				}
