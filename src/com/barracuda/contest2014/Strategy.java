@@ -8,7 +8,7 @@ public class Strategy {
 		for (int z = 9; z > 0; z--) {
 			for (int x = 9 - z; x >= 0; x--) {
 				for (int y = 9 - z - x; y >= 0; y--) {
-					if (true) {
+					if () {
 						
 					}
 				}
