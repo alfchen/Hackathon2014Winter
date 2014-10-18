@@ -1,7 +1,8 @@
 package com.barracuda.contest2014;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 
 //for basic util functions
@@ -96,12 +97,37 @@ public class Utils {
 	static int numAffected(int x, int y, int z, int[][][] board, int player) {
 		int res = 0;
 		
-		if ( x - 1 >= 0 && z + 1 < 10 && board[x-1][y][z+1] == 0 )
-			res++;
-		if ( y - 1 >= 0 && z + 1 < 10 && board[x][y-1][z+1] == 0 )
-			res++;
-		if ( z + 1 < 10 && board[x][y][z+1] == 0)
-			res++;
+		Queue<Integer> qx = new LinkedList<Integer>();
+		Queue<Integer> qy = new LinkedList<Integer>();
+		Queue<Integer> qz = new LinkedList<Integer>();
+		qx.add(x);
+		qy.add(y);
+		qz.add(z);
+		
+		while ( !qx.isEmpty() ) {
+			int xx = qx.poll();
+			int yy = qy.poll();
+			int zz = qz.poll();
+			
+			if ( xx - 1 >= 0 && zz + 1 < 10 && board[xx][yy][zz] == 0 ) {
+				res++;
+				qx.add(xx-1);
+				qy.add(yy);
+				qz.add(zz+1);
+			}
+			if ( yy - 1 >= 0 && zz + 1 < 10 && board[xx][yy-1][zz+1] == 0 ) {
+				res++;
+				qx.add(xx);
+				qy.add(yy-1);
+				qz.add(z+1);
+			}
+			if ( zz + 1 < 10 && board[xx][yy][zz+1] == 0) {
+				res++;
+				qx.add(xx);
+				qy.add(yy);
+				qz.add(zz+1);
+			}
+		}
 		
 		return res;
 	}
